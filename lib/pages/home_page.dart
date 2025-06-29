@@ -35,62 +35,114 @@ class _HomePageState extends State<HomePage> {
               itemCount: entries.length,
               itemBuilder: (context, index) {
                 final entry = entries[index];
-                return ListTile(
-                  title: Text(entry.title),
-                  subtitle: Text(entry.date),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => AddEntryPage(entry: entry)),
-                          );
-                          loadEntries(); // refresh list after editing
-                        },
+                return Container(
+                  margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.shade300,
+                        blurRadius: 6,
+                        offset: Offset(0, 3),
                       ),
-                      IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
-                        onPressed: () async {
-                          final confirm = await showDialog<bool>(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: Text('Delete Entry'),
-                              content: Text('Are you sure you want to delete this entry?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, false),
-                                  child: Text('Cancel'),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                                  child: Text('Delete'),
-                                ),
-                              ],
-                            ),
-                          );
-
-                          if (confirm == true) {
-                            await dbService.deleteEntry(entry.id!);
-                            loadEntries();
-
-                            // ✅ Show snackbar after deletion
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Entry deleted'),
-                                duration: Duration(seconds: 2),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              entry.title,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
                               ),
-                            );
-                          }
-                        }
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit, color: Colors.blue),
+                                onPressed: () async {
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => AddEntryPage(entry: entry)),
+                                  );
+                                  loadEntries();
+                                },
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete, color: Colors.red),
+                                onPressed: () async {
+                                  final confirm = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: Text('Delete Entry'),
+                                      content: Text('Are you sure you want to delete this entry?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context, false),
+                                          child: Text('Cancel'),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () => Navigator.pop(context, true),
+                                          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                                          child: Text('Delete'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+
+                                  if (confirm == true) {
+                                    final deletedEntry = entry;
+                                    await dbService.deleteEntry(entry.id!);
+                                    loadEntries();
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Row(
+                                          children: [
+                                            Icon(Icons.delete_forever, color: Colors.white),
+                                            SizedBox(width: 8),
+                                            Expanded(child: Text('Entry deleted')),
+                                          ],
+                                        ),
+                                        backgroundColor: Colors.redAccent,
+                                        duration: Duration(seconds: 4),
+                                        action: SnackBarAction(
+                                          label: 'Undo',
+                                          textColor: Colors.white,
+                                          onPressed: () async {
+                                            await dbService.insertEntry(deletedEntry);
+                                            loadEntries();
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 6),
+                      Text(
+                        entry.date,
+                        style: TextStyle(color: Colors.black, fontSize: 13),
                       ),
                     ],
                   ),
                 );
-              },
+              }
             ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
