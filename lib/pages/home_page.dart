@@ -76,6 +76,14 @@ class _HomePageState extends State<HomePage> {
                           if (confirm == true) {
                             await dbService.deleteEntry(entry.id!);
                             loadEntries();
+
+                            // ✅ Show snackbar after deletion
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Entry deleted'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
                           }
                         }
                       ),
