@@ -38,12 +38,27 @@ class _HomePageState extends State<HomePage> {
                 return ListTile(
                   title: Text(entry.title),
                   subtitle: Text(entry.date),
-                  trailing: IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () async {
-                      await dbService.deleteEntry(entry.id!);
-                      loadEntries();
-                    },
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.edit, color: Colors.blue),
+                        onPressed: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => AddEntryPage(entry: entry)),
+                          );
+                          loadEntries(); // refresh list after editing
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete, color: Colors.red),
+                        onPressed: () async {
+                          await dbService.deleteEntry(entry.id!);
+                          loadEntries(); // refresh list after deletion
+                        },
+                      ),
+                    ],
                   ),
                 );
               },
