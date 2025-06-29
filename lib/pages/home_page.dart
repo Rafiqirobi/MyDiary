@@ -134,6 +134,15 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ],
                       ),
+                      
+                      SizedBox(height: 6),
+                      Text(
+                        entry.content,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: Colors.black87),
+                      ),
+
                       SizedBox(height: 6),
                       Text(
                         entry.date,
