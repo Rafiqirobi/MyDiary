@@ -14,6 +14,8 @@ class AddEntryPage extends StatefulWidget {
 class _AddEntryPageState extends State<AddEntryPage> {
   final titleController = TextEditingController();
   final contentController = TextEditingController();
+  String selectedMood = '🙂';
+  List<String> moods = ['🙂', '😊', '😢', '😡', '😴', '😃'];
   final dbService = DBService();
 
   @override
@@ -22,6 +24,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
     if (widget.entry != null) {
       titleController.text = widget.entry!.title;
       contentController.text = widget.entry!.content;
+      selectedMood = widget.entry!.mood;
     }
   }
 
@@ -33,6 +36,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
         title: titleController.text,
         content: contentController.text,
         date: now,
+        mood: selectedMood,
       );
       await dbService.updateEntry(updatedEntry);
     } else {
@@ -40,6 +44,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
         title: titleController.text,
         content: contentController.text,
         date: now,
+        mood: selectedMood,
       );
       await dbService.insertEntry(newEntry);
     }
@@ -54,8 +59,40 @@ class _AddEntryPageState extends State<AddEntryPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(controller: titleController, decoration: InputDecoration(labelText: "Title")),
-            TextField(controller: contentController, maxLines: 5, decoration: InputDecoration(labelText: "Content")),
+            TextField(
+              controller: titleController,
+              decoration: InputDecoration(
+                labelText: "Title"
+                )
+              ),
+            TextField(
+              controller: contentController, 
+              maxLines: 5, 
+              decoration: InputDecoration(
+                labelText: "Content"
+                )
+              ),
+              
+              SizedBox(height: 10), // 🌟 add spacing before mood row
+
+              Row(
+                children: moods.map((mood) {
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() => selectedMood = mood);
+                    },
+                    child: Container(
+                      margin: EdgeInsets.symmetric(horizontal: 6),
+                      padding: EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: selectedMood == mood ? Colors.blue[100] : Colors.grey[200],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(mood, style: TextStyle(fontSize: 24)),
+                    ),
+                  );
+                }).toList(),
+              ),
             SizedBox(height: 20),
             ElevatedButton(onPressed: saveEntry, child: Text("Save"))
           ],

@@ -56,14 +56,18 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
-                            child: Text(
-                              entry.title,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                            child: Row(
+                              children: [
+                                Text(entry.mood, style: TextStyle(fontSize: 24)),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    entry.title,
+                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           Row(
@@ -134,7 +138,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ],
                       ),
-                      
+
                       SizedBox(height: 6),
                       Text(
                         entry.content,
@@ -164,14 +168,11 @@ class _HomePageState extends State<HomePage> {
         currentIndex: 0,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.book), label: "Diary"),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
         onTap: (index) {
           if (index == 1) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => SettingsPage()));
-          } else if (index == 2) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage()));
+             Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage()));
           }
         },
       ),

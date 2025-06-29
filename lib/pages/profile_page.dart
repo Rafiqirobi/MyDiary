@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mydiary/pages/login_page.dart';
+import 'package:mydiary/pages/settings_page.dart';
 
 class ProfilePage extends StatelessWidget {
   final user = FirebaseAuth.instance.currentUser;
@@ -17,6 +18,16 @@ class ProfilePage extends StatelessWidget {
             SizedBox(height: 20),
             Text("Email: ${user?.email ?? 'Unknown'}"),
             SizedBox(height: 20),
+            ElevatedButton.icon(
+              icon: Icon(Icons.settings),
+              label: Text("Go to Settings"),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => SettingsPage()),
+                );
+              },
+            ),
             ElevatedButton(
               child: Text("Logout"),
               onPressed: () async {
