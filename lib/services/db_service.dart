@@ -18,8 +18,13 @@ class DBService {
 
   Future _createDB(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE diary(id INTEGER PRIMARY KEY AUTOINCREMENT,
-      title TEXT, content TEXT, date TEXT)
+      CREATE TABLE diary (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT,
+        content TEXT,
+        date TEXT,
+        mood TEXT
+      )
     ''');
   }
 
