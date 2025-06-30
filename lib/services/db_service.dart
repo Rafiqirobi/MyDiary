@@ -41,7 +41,7 @@ class DBService {
   Future<List<DiaryEntry>> getEntries() async {
     final db = await database;
     final result = await db.query('diary', orderBy: 'id DESC');
-    return result.map((e) => DiaryEntry(id: e['id'] as int, title: e['title'] as String, content: e['content'] as String, date: e['date'] as String)).toList();
+    return result.map((e) => DiaryEntry.fromMap(e)).toList();
   }
 
   Future<void> insertEntry(DiaryEntry entry) async {

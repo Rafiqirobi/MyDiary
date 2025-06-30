@@ -29,7 +29,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
   }
 
   void saveEntry() async {
-    final now = DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now());
+    final now = DateFormat('d MMMM yyyy – kk:mm').format(DateTime.now());
     if (widget.entry != null) {
       final updatedEntry = DiaryEntry(
         id: widget.entry!.id,
