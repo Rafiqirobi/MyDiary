@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mydiary/models/diary_entry.dart';
 import 'package:mydiary/pages/add_entry_page.dart';
+import 'package:mydiary/pages/entry_detail_page.dart';
 import 'package:mydiary/pages/profile_page.dart';
 import 'package:mydiary/services/db_service.dart';
 
@@ -18,7 +19,7 @@ class _HomePageState extends State<HomePage> {
   String selectedMood = 'All';
   String sortOption = 'Date Desc';
   List<String> moods = ['All', '🙂', '😊', '😢', '😡', '😴', '😃'];
-  List<String> sortOptions = ['Date Desc', 'Date Asc', 'Title A-Z', 'Title Z-A'];
+  List<String> sortOptions = ['Date Desc', 'Date Asc'];
 
   @override
   void initState() {
@@ -32,10 +33,6 @@ class _HomePageState extends State<HomePage> {
       entries = data;
       applyFilters();
     });
-  }
-
-  void filterEntries(String query) {
-    applyFilters();
   }
 
   void applyFilters() {
@@ -55,12 +52,6 @@ class _HomePageState extends State<HomePage> {
     switch (sortOption) {
       case 'Date Asc':
         results.sort((a, b) => a.date.compareTo(b.date));
-        break;
-      case 'Title A-Z':
-        results.sort((a, b) => a.title.compareTo(b.title));
-        break;
-      case 'Title Z-A':
-        results.sort((a, b) => b.title.compareTo(a.title));
         break;
       default:
         results.sort((a, b) => b.date.compareTo(a.date));
@@ -159,19 +150,6 @@ class _HomePageState extends State<HomePage> {
                                 child: Icon(Icons.delete, color: Colors.white),
                               ),
                               direction: DismissDirection.endToStart,
-                              confirmDismiss: (direction) async {
-                                return await showDialog(
-                                  context: context,
-                                  builder: (ctx) => AlertDialog(
-                                    title: Text('Confirm'),
-                                    content: Text('Delete this entry?'),
-                                    actions: [
-                                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('Cancel')),
-                                      TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text('Delete')),
-                                    ],
-                                  ),
-                                );
-                              },
                               onDismissed: (direction) async {
                                 await dbService.deleteEntry(entry.id!);
                                 loadEntries();
@@ -180,8 +158,20 @@ class _HomePageState extends State<HomePage> {
                                     content: Text('Entry deleted'),
                                     action: SnackBarAction(
                                       label: 'Undo',
-                                      textColor: Colors.black,
+                                      textColor: Colors.yellow,
                                       onPressed: () => undoDelete(entry),
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: GestureDetector(
+                              onTap: () async {
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => EntryDetailPage(
+                                      entry: entry,
+                                      onUpdated: loadEntries,
                                     ),
                                   ),
                                 );
@@ -216,15 +206,33 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                           ],
                                         ),
-                                        IconButton(
-                                          icon: Icon(Icons.edit, color: Colors.blue),
-                                          onPressed: () async {
-                                            await Navigator.push(
-                                              context,
-                                              MaterialPageRoute(builder: (_) => AddEntryPage(entry: entry)),
-                                            );
-                                            loadEntries();
+                                        PopupMenuButton<String>(
+                                          onSelected: (value) async {
+                                            if (value == 'edit') {
+                                              await Navigator.push(
+                                                context,
+                                                MaterialPageRoute(builder: (_) => AddEntryPage(entry: entry)),
+                                              );
+                                              loadEntries();
+                                            } else if (value == 'delete') {
+                                              await dbService.deleteEntry(entry.id!);
+                                              loadEntries();
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text('Entry deleted'),
+                                                  action: SnackBarAction(
+                                                    label: 'Undo',
+                                                    textColor: Colors.yellow,
+                                                    onPressed: () => undoDelete(entry),
+                                                  ),
+                                                ),
+                                              );
+                                            }
                                           },
+                                          itemBuilder: (context) => [
+                                            PopupMenuItem(value: 'edit', child: Text('Edit')),
+                                            PopupMenuItem(value: 'delete', child: Text('Delete')),
+                                          ],
                                         ),
                                       ],
                                     ),
@@ -243,7 +251,8 @@ class _HomePageState extends State<HomePage> {
                                   ],
                                 ),
                               ),
-                            );
+                            ),
+                          );
                           }).toList(),
                         ],
                       );
