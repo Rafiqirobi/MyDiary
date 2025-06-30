@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mydiary/models/diary_entry.dart';
 import 'package:mydiary/pages/add_entry_page.dart';
 import 'package:mydiary/pages/profile_page.dart';
-import 'package:mydiary/pages/settings_page.dart';
 import 'package:mydiary/services/db_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -16,6 +15,11 @@ class _HomePageState extends State<HomePage> {
   List<DiaryEntry> filteredEntries = [];
   TextEditingController searchController = TextEditingController();
 
+  String selectedMood = 'All';
+  String sortOption = 'Date Desc';
+  List<String> moods = ['All', '🙂', '😊', '😢', '😡', '😴', '😃'];
+  List<String> sortOptions = ['Date Desc', 'Date Asc', 'Title A-Z', 'Title Z-A'];
+
   @override
   void initState() {
     super.initState();
@@ -26,17 +30,41 @@ class _HomePageState extends State<HomePage> {
     final data = await dbService.getEntries();
     setState(() {
       entries = data;
-      filteredEntries = data;
+      applyFilters();
     });
   }
 
   void filterEntries(String query) {
-    final results = entries.where((entry) {
-      final titleMatch = entry.title.toLowerCase().contains(query.toLowerCase());
-      final contentMatch = entry.content.toLowerCase().contains(query.toLowerCase());
-      final moodMatch = entry.mood.contains(query); // emoji match
-      return titleMatch || contentMatch || moodMatch;
+    applyFilters();
+  }
+
+  void applyFilters() {
+    List<DiaryEntry> results = entries;
+
+    if (selectedMood != 'All') {
+      results = results.where((entry) => entry.mood == selectedMood).toList();
+    }
+
+    final query = searchController.text.toLowerCase();
+    results = results.where((entry) {
+      return entry.title.toLowerCase().contains(query) ||
+          entry.content.toLowerCase().contains(query) ||
+          entry.mood.contains(query);
     }).toList();
+
+    switch (sortOption) {
+      case 'Date Asc':
+        results.sort((a, b) => a.date.compareTo(b.date));
+        break;
+      case 'Title A-Z':
+        results.sort((a, b) => a.title.compareTo(b.title));
+        break;
+      case 'Title Z-A':
+        results.sort((a, b) => b.title.compareTo(a.title));
+        break;
+      default:
+        results.sort((a, b) => b.date.compareTo(a.date));
+    }
 
     setState(() {
       filteredEntries = results;
@@ -53,6 +81,11 @@ class _HomePageState extends State<HomePage> {
       grouped[dateOnly]!.add(entry);
     }
     return grouped;
+  }
+
+  void undoDelete(DiaryEntry entry) async {
+    await dbService.insertEntry(entry);
+    loadEntries();
   }
 
   @override
@@ -72,7 +105,31 @@ class _HomePageState extends State<HomePage> {
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              onChanged: filterEntries,
+              onChanged: (_) => applyFilters(),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Row(
+              children: [
+                DropdownButton<String>(
+                  value: selectedMood,
+                  items: moods.map((mood) => DropdownMenuItem(value: mood, child: Text(mood))).toList(),
+                  onChanged: (value) {
+                    setState(() => selectedMood = value!);
+                    applyFilters();
+                  },
+                ),
+                Spacer(),
+                DropdownButton<String>(
+                  value: sortOption,
+                  items: sortOptions.map((opt) => DropdownMenuItem(value: opt, child: Text(opt))).toList(),
+                  onChanged: (value) {
+                    setState(() => sortOption = value!);
+                    applyFilters();
+                  },
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -93,92 +150,98 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           ...entriesOnDate.map((entry) {
-                            return Container(
-                              margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              padding: EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.shade300,
-                                    blurRadius: 6,
-                                    offset: Offset(0, 3),
-                                  ),
-                                ],
+                            return Dismissible(
+                              key: Key(entry.id.toString()),
+                              background: Container(
+                                color: Colors.red,
+                                alignment: Alignment.centerRight,
+                                padding: EdgeInsets.only(right: 20),
+                                child: Icon(Icons.delete, color: Colors.white),
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(entry.mood, style: TextStyle(fontSize: 24)),
-                                          SizedBox(width: 8),
-                                          Text(
-                                            entry.title,
-                                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          IconButton(
-                                            icon: Icon(Icons.edit, color: Colors.blue),
-                                            onPressed: () async {
-                                              await Navigator.push(
-                                                context,
-                                                MaterialPageRoute(builder: (_) => AddEntryPage(entry: entry)),
-                                              );
-                                              loadEntries();
-                                            },
-                                          ),
-                                          IconButton(
-                                            icon: Icon(Icons.delete, color: Colors.red),
-                                            onPressed: () async {
-                                              final confirmed = await showDialog(
-                                                context: context,
-                                                builder: (ctx) => AlertDialog(
-                                                  title: Text('Confirm'),
-                                                  content: Text('Delete this entry?'),
-                                                  actions: [
-                                                    TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('Cancel')),
-                                                    TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text('Delete')),
-                                                  ],
-                                                ),
-                                              );
-                                              if (confirmed == true) {
-                                                await dbService.deleteEntry(entry.id!);
-                                                loadEntries();
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  SnackBar(
-                                                    content: Text('Entry deleted'),
-                                                    backgroundColor: Colors.red,
-                                                    duration: Duration(seconds: 2),
-                                                  ),
-                                                );
-                                              }
-                                            },
-                                          ),
-                                        ],
-                                      )
+                              direction: DismissDirection.endToStart,
+                              confirmDismiss: (direction) async {
+                                return await showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: Text('Confirm'),
+                                    content: Text('Delete this entry?'),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('Cancel')),
+                                      TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text('Delete')),
                                     ],
                                   ),
-                                  SizedBox(height: 6),
-                                  Text(
-                                    entry.content,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(color: Colors.black87),
+                                );
+                              },
+                              onDismissed: (direction) async {
+                                await dbService.deleteEntry(entry.id!);
+                                loadEntries();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Entry deleted'),
+                                    action: SnackBarAction(
+                                      label: 'Undo',
+                                      textColor: Colors.black,
+                                      onPressed: () => undoDelete(entry),
+                                    ),
                                   ),
-                                  SizedBox(height: 6),
-                                  Text(
-                                    entry.date,
-                                    style: TextStyle(color: Colors.grey[600], fontSize: 13),
-                                  ),
-                                ],
+                                );
+                              },
+                              child: Container(
+                                margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.purple,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.pink,
+                                      blurRadius: 6,
+                                      offset: Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(entry.mood, style: TextStyle(fontSize: 24)),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              entry.title,
+                                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                            ),
+                                          ],
+                                        ),
+                                        IconButton(
+                                          icon: Icon(Icons.edit, color: Colors.blue),
+                                          onPressed: () async {
+                                            await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(builder: (_) => AddEntryPage(entry: entry)),
+                                            );
+                                            loadEntries();
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 6),
+                                    Text(
+                                      entry.content,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(color: Colors.black87),
+                                    ),
+                                    SizedBox(height: 6),
+                                    Text(
+                                      entry.date,
+                                      style: TextStyle(color: Colors.black, fontSize: 13),
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           }).toList(),
@@ -200,13 +263,10 @@ class _HomePageState extends State<HomePage> {
         currentIndex: 0,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.book), label: "Diary"),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
         onTap: (index) {
           if (index == 1) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => SettingsPage()));
-          } else if (index == 2) {
             Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage()));
           }
         },
