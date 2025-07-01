@@ -2,28 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
+  final bool isDarkMode;
+  final Function(bool) onThemeChanged;
+
+  SettingsPage({required this.isDarkMode, required this.onThemeChanged});
+
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool isDarkMode = false;
+  late bool isDark;
 
   @override
   void initState() {
     super.initState();
-    loadTheme();
-  }
-
-  void loadTheme() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() => isDarkMode = prefs.getBool('darkMode') ?? false);
+    isDark = widget.isDarkMode;
   }
 
   void toggleTheme(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('darkMode', value);
-    setState(() => isDarkMode = value);
+    widget.onThemeChanged(value); // 🔁 call back to parent
+    setState(() => isDark = value);
   }
 
   @override
@@ -34,7 +35,7 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           SwitchListTile(
             title: Text("Dark Mode"),
-            value: isDarkMode,
+            value: isDark,
             onChanged: toggleTheme,
           ),
         ],

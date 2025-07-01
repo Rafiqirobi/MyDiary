@@ -1,46 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:mydiary/pages/login_page.dart';
-import 'package:mydiary/pages/home_page.dart';
+import 'package:mydiary/pages/main_page.dart';
 import 'package:mydiary/services/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  await NotificationService().init(); // Firebase Cloud Messaging init
+  await NotificationService().init();
   runApp(MyApp());
 }
 
-class MyApp extends StatefulWidget {
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
+class MyApp extends StatelessWidget {
+  final ValueNotifier<bool> isDarkModeNotifier = ValueNotifier(false);
 
-class _MyAppState extends State<MyApp> {
-  bool isDarkMode = false;
-
-  @override
-  void initState() {
-    super.initState();
+  MyApp({super.key}) {
     _loadTheme();
   }
 
   void _loadTheme() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      isDarkMode = prefs.getBool('darkMode') ?? false;
-    });
+    isDarkModeNotifier.value = prefs.getBool('darkMode') ?? false;
+  }
+
+  void _toggleTheme(bool isDark) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('darkMode', isDark);
+    isDarkModeNotifier.value = isDark;
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'My Diary',
-      theme: isDarkMode ? ThemeData.dark() : ThemeData.light(),
-      home: LoginPage(),
-      debugShowCheckedModeBanner: false,
+    return ValueListenableBuilder(
+      valueListenable: isDarkModeNotifier,
+      builder: (context, isDark, _) {
+        return MaterialApp(
+          title: 'My Diary',
+          theme: isDark ? ThemeData.dark() : ThemeData.light(),
+          debugShowCheckedModeBanner: false,
+          home: FirebaseAuth.instance.currentUser == null
+              ? LoginPage()
+              : MainPage(
+                  isDarkMode: isDark,
+                  onThemeChanged: _toggleTheme,
+                ),
+        );
+      },
     );
   }
 }
-

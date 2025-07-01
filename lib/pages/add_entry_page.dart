@@ -15,8 +15,19 @@ class _AddEntryPageState extends State<AddEntryPage> {
   final titleController = TextEditingController();
   final contentController = TextEditingController();
   String selectedMood = '🙂';
-  List<String> moods = ['🙂', '😊', '😢', '😡', '😴', '😃'];
-  String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+
+  final List<Map<String, String>> moodOptions = [
+    {'emoji': '🙂', 'label': 'Happy'},
+    {'emoji': '😊', 'label': 'Joyful'},
+    {'emoji': '😢', 'label': 'Sad'},
+    {'emoji': '😡', 'label': 'Angry'},
+    {'emoji': '😴', 'label': 'Sleepy'},
+    {'emoji': '😃', 'label': 'Excited'},
+    {'emoji': '😍', 'label': 'In Love'},
+    {'emoji': '🤔', 'label': 'Thinking'},
+    {'emoji': '😭', 'label': 'Crying'},
+  ];
+
   final dbService = DBService();
 
   @override
@@ -32,74 +43,82 @@ class _AddEntryPageState extends State<AddEntryPage> {
   void saveEntry() async {
     final now = DateTime.now();
 
+    final DiaryEntry entry = DiaryEntry(
+      id: widget.entry?.id,
+      title: titleController.text,
+      content: contentController.text,
+      date: now,
+      mood: selectedMood,
+    );
+
     if (widget.entry != null) {
-      final updatedEntry = DiaryEntry(
-        id: widget.entry!.id,
-        title: titleController.text,
-        content: contentController.text,
-        date: now,
-        mood: selectedMood,
-      );
-      await dbService.updateEntry(updatedEntry);
+      await dbService.updateEntry(entry);
     } else {
-      final newEntry = DiaryEntry(
-        title: titleController.text,
-        content: contentController.text,
-        date: now,
-        mood: selectedMood,
-      );
-      await dbService.insertEntry(newEntry);
+      await dbService.insertEntry(entry);
     }
 
     Navigator.pop(context);
   }
 
-
-
   @override
   Widget build(BuildContext context) {
+    final selectedMoodMap =
+        moodOptions.firstWhere((m) => m['emoji'] == selectedMood);
+
     return Scaffold(
-      appBar: AppBar(title: Text(widget.entry != null ? "Edit Entry" : "New Entry")),
+      appBar: AppBar(
+        title: Text(widget.entry != null ? "Edit Entry" : "New Entry"),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             TextField(
               controller: titleController,
-              decoration: InputDecoration(
-                labelText: "Title"
-                )
-              ),
+              decoration: InputDecoration(labelText: "Title"),
+            ),
             TextField(
-              controller: contentController, 
-              maxLines: 5, 
-              decoration: InputDecoration(
-                labelText: "Content"
-                )
-              ),
-              
-              SizedBox(height: 10), // 🌟 add spacing before mood row
-
-              Row(
-                children: moods.map((mood) {
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() => selectedMood = mood);
-                    },
-                    child: Container(
-                      margin: EdgeInsets.symmetric(horizontal: 6),
-                      padding: EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: selectedMood == mood ? Colors.blue[100] : Colors.grey[200],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(mood, style: TextStyle(fontSize: 24)),
-                    ),
-                  );
-                }).toList(),
-              ),
+              controller: contentController,
+              maxLines: 5,
+              decoration: InputDecoration(labelText: "Content"),
+            ),
             SizedBox(height: 20),
-            ElevatedButton(onPressed: saveEntry, child: Text("Save"))
+            Row(
+              children: [
+                Text("Mood:", style: TextStyle(fontSize: 16)),
+                SizedBox(width: 10),
+                Expanded(
+                  child: DropdownButton<Map<String, String>>(
+                    isExpanded: true,
+                    value: selectedMoodMap,
+                    items: moodOptions.map((mood) {
+                      return DropdownMenuItem<Map<String, String>>(
+                        value: mood,
+                        child: Row(
+                          children: [
+                            Text(mood['emoji']!, style: TextStyle(fontSize: 24)),
+                            SizedBox(width: 10),
+                            Text(mood['label']!, style: TextStyle(fontSize: 16)),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          selectedMood = value['emoji']!;
+                        });
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: saveEntry,
+              child: Text("Save", style: TextStyle(fontSize: 16)),
+            ),
           ],
         ),
       ),

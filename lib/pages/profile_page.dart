@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mydiary/pages/login_page.dart';
-import 'package:mydiary/pages/settings_page.dart';
 
 class ProfilePage extends StatelessWidget {
   final user = FirebaseAuth.instance.currentUser;
@@ -13,28 +12,39 @@ class ProfilePage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CircleAvatar(radius: 40, child: Icon(Icons.person, size: 40)),
             SizedBox(height: 20),
-            Text("Email: ${user?.email ?? 'Unknown'}"),
-            SizedBox(height: 20),
+            Text("Email: ${user?.email ?? 'Unknown'}", style: TextStyle(fontSize: 16)),
+            SizedBox(height: 40),
             ElevatedButton.icon(
-              icon: Icon(Icons.settings),
-              label: Text("Go to Settings"),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => SettingsPage()),
+              icon: Icon(Icons.logout),
+              label: Text("Logout"),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: Text("Confirm Logout"),
+                    content: Text("Are you sure you want to log out?"),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(context, false), child: Text("Cancel")),
+                      ElevatedButton(onPressed: () => Navigator.pop(context, true), child: Text("Logout")),
+                    ],
+                  ),
                 );
+
+                if (confirm == true) {
+                  await FirebaseAuth.instance.signOut();
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => LoginPage()),
+                    (route) => false,
+                  );
+                }
               },
             ),
-            ElevatedButton(
-              child: Text("Logout"),
-              onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => LoginPage()));
-              },
-            )
           ],
         ),
       ),
