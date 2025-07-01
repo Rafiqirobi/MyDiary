@@ -20,7 +20,10 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     final pages = [
       HomePage(),
-      ProfilePage(),
+      ProfilePage(
+        isDarkMode: widget.isDarkMode,
+        onThemeChanged: widget.onThemeChanged,
+      ),
       SettingsPage(
         isDarkMode: widget.isDarkMode,
         onThemeChanged: widget.onThemeChanged,

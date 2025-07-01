@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:mydiary/models/diary_entry.dart';
 import 'package:mydiary/services/db_service.dart';
 
@@ -14,18 +13,15 @@ class AddEntryPage extends StatefulWidget {
 class _AddEntryPageState extends State<AddEntryPage> {
   final titleController = TextEditingController();
   final contentController = TextEditingController();
-  String selectedMood = '🙂';
+  String selectedMood = '😄';
 
   final List<Map<String, String>> moodOptions = [
-    {'emoji': '🙂', 'label': 'Happy'},
-    {'emoji': '😊', 'label': 'Joyful'},
-    {'emoji': '😢', 'label': 'Sad'},
-    {'emoji': '😡', 'label': 'Angry'},
-    {'emoji': '😴', 'label': 'Sleepy'},
-    {'emoji': '😃', 'label': 'Excited'},
-    {'emoji': '😍', 'label': 'In Love'},
-    {'emoji': '🤔', 'label': 'Thinking'},
-    {'emoji': '😭', 'label': 'Crying'},
+    {'emoji': '😄', 'label': 'Happiness'},
+    {'emoji': '😢', 'label': 'Sadness'},
+    {'emoji': '😠', 'label': 'Anger'},
+    {'emoji': '😱', 'label': 'Fear'},
+    {'emoji': '😲', 'label': 'Surprise'},
+    {'emoji': '🤢', 'label': 'Disgust'},
   ];
 
   final dbService = DBService();

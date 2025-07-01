@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:mydiary/pages/home_page.dart';
+import 'package:mydiary/pages/main_page.dart';
 import 'package:mydiary/pages/signup_page.dart';
 import 'package:mydiary/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
+  final bool isDarkMode;
+  final Function(bool) onThemeChanged;
+
+  LoginPage({required this.isDarkMode, required this.onThemeChanged});
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -23,7 +28,12 @@ class _LoginPageState extends State<LoginPage> {
       if (user != null) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => HomePage()),
+          MaterialPageRoute(
+            builder: (_) => MainPage(
+              isDarkMode: widget.isDarkMode,
+              onThemeChanged: widget.onThemeChanged,
+            ),
+          ),
         );
       }
     } catch (e) {
@@ -46,9 +56,12 @@ class _LoginPageState extends State<LoginPage> {
             ElevatedButton(onPressed: login, child: Text("Login")),
             Text(error, style: TextStyle(color: Colors.red)),
             TextButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => SignupPage())),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => SignupPage()),
+              ),
               child: Text("Don't have an account? Sign up"),
-            )
+            ),
           ],
         ),
       ),

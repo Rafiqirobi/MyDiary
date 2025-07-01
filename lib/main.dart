@@ -41,11 +41,14 @@ class MyApp extends StatelessWidget {
           theme: isDark ? ThemeData.dark() : ThemeData.light(),
           debugShowCheckedModeBanner: false,
           home: FirebaseAuth.instance.currentUser == null
-              ? LoginPage()
-              : MainPage(
-                  isDarkMode: isDark,
-                  onThemeChanged: _toggleTheme,
-                ),
+          ? LoginPage(
+              isDarkMode: isDark,
+              onThemeChanged: _toggleTheme,
+            )
+          : MainPage(
+              isDarkMode: isDark,
+              onThemeChanged: _toggleTheme,
+            ),
         );
       },
     );

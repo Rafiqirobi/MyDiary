@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mydiary/models/diary_entry.dart';
 import 'package:mydiary/pages/add_entry_page.dart';
 import 'package:mydiary/pages/entry_detail_page.dart';
-import 'package:mydiary/pages/profile_page.dart';
 import 'package:mydiary/services/db_service.dart';
-import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -19,20 +18,18 @@ class _HomePageState extends State<HomePage> {
 
   String selectedMood = 'All';
   String sortOption = 'Latest';
+
   final List<Map<String, String>> moodOptions = [
-    {'emoji': '😄', 'label': 'Happy'},
-    {'emoji': '😐', 'label': 'Neutral'},
-    {'emoji': '😢', 'label': 'Sad'},
-    {'emoji': '😡', 'label': 'Angry'},
-    {'emoji': '😴', 'label': 'Sleepy'},
-    {'emoji': '🤯', 'label': 'Stressed'},
-    {'emoji': '😍', 'label': 'In Love'},
-    {'emoji': '🤔', 'label': 'Thinking'},
-    {'emoji': '😭', 'label': 'Crying'},
+    {'emoji': '😄', 'label': 'Happiness'},
+    {'emoji': '😢', 'label': 'Sadness'},
+    {'emoji': '😠', 'label': 'Anger'},
+    {'emoji': '😱', 'label': 'Fear'},
+    {'emoji': '😲', 'label': 'Surprise'},
+    {'emoji': '🤢', 'label': 'Disgust'},
   ];
-  List<String> sortOptions = ['Latest', 'Oldest'];
 
   List<String> get moods => ['All', ...moodOptions.map((m) => m['emoji']!)];
+  List<String> sortOptions = ['Latest', 'Oldest'];
 
   @override
   void initState() {
@@ -128,13 +125,15 @@ class _HomePageState extends State<HomePage> {
                         : moodOptions.firstWhere((m) => m['emoji'] == mood)['label']!;
                     return DropdownMenuItem(
                       value: mood,
-                      child: Row(
-                        children: [
-                          Text(mood),
-                          SizedBox(width: 8),
-                          Text(label),
-                        ],
-                      ),
+                      child: mood == 'All'
+                          ? Text('All')
+                          : Row(
+                              children: [
+                                Text(mood),
+                                SizedBox(width: 8),
+                                Text(label),
+                              ],
+                            ),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -179,7 +178,7 @@ class _HomePageState extends State<HomePage> {
             child: filteredEntries.isEmpty
                 ? Center(child: Text("No entries found"))
                 : ListView(
-                    children: groupedEntries.entries.map((group) {
+                    children: groupEntriesByDate(filteredEntries).entries.map((group) {
                       final date = group.key;
                       final entriesOnDate = group.value;
                       return Column(
@@ -314,7 +313,8 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
+        backgroundColor: Colors.purple,
+        child: Icon(Icons.edit_note),
         onPressed: () async {
           await Navigator.push(context, MaterialPageRoute(builder: (_) => AddEntryPage()));
           loadEntries();

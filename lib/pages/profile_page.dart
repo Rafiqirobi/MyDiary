@@ -3,6 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mydiary/pages/login_page.dart';
 
 class ProfilePage extends StatelessWidget {
+  final bool isDarkMode;
+  final Function(bool) onThemeChanged;
+
+  ProfilePage({required this.isDarkMode, required this.onThemeChanged});
+
   final user = FirebaseAuth.instance.currentUser;
 
   @override
@@ -39,7 +44,12 @@ class ProfilePage extends StatelessWidget {
                   await FirebaseAuth.instance.signOut();
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (_) => LoginPage()),
+                    MaterialPageRoute(
+                      builder: (_) => LoginPage(
+                        isDarkMode: isDarkMode,
+                        onThemeChanged: onThemeChanged,
+                      ),
+                    ),
                     (route) => false,
                   );
                 }
