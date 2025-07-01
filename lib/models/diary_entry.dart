@@ -2,7 +2,7 @@ class DiaryEntry {
   final int? id;
   final String title;
   final String content;
-  final String date;
+  final DateTime date;
   final String mood; // 😊 😢 etc.
 
   DiaryEntry({
@@ -13,23 +13,23 @@ class DiaryEntry {
     this.mood = '🙂', // default mood
   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'title': title,
-      'content': content,
-      'date': date,
-      'mood': mood,
-    };
-  }
-
   factory DiaryEntry.fromMap(Map<String, dynamic> map) {
     return DiaryEntry(
       id: map['id'],
       title: map['title'],
       content: map['content'],
-      date: map['date'],
+      date: DateTime.parse(map['date']), // convert from String
       mood: map['mood'] ?? '🙂',
     );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'content': content,
+      'date': date.toIso8601String(), // save as String
+      'mood': mood,
+    };
   }
 }

@@ -4,6 +4,7 @@ import 'package:mydiary/pages/add_entry_page.dart';
 import 'package:mydiary/pages/entry_detail_page.dart';
 import 'package:mydiary/pages/profile_page.dart';
 import 'package:mydiary/services/db_service.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -17,9 +18,9 @@ class _HomePageState extends State<HomePage> {
   TextEditingController searchController = TextEditingController();
 
   String selectedMood = 'All';
-  String sortOption = 'Date Desc';
+  String sortOption = 'Latest';
   List<String> moods = ['All', '🙂', '😊', '😢', '😡', '😴', '😃'];
-  List<String> sortOptions = ['Date Desc', 'Date Asc'];
+  List<String> sortOptions = ['Latest', 'Oldest'];
 
   @override
   void initState() {
@@ -50,7 +51,7 @@ class _HomePageState extends State<HomePage> {
     }).toList();
 
     switch (sortOption) {
-      case 'Date Asc':
+      case 'Latest':
         results.sort((a, b) => a.date.compareTo(b.date));
         break;
       default:
@@ -65,7 +66,7 @@ class _HomePageState extends State<HomePage> {
   Map<String, List<DiaryEntry>> groupEntriesByDate(List<DiaryEntry> entries) {
     Map<String, List<DiaryEntry>> grouped = {};
     for (var entry in entries) {
-      String dateOnly = entry.date.split('–')[0].trim();
+      String dateOnly = DateFormat('yyyy-MM-dd').format(entry.date); // for grouping
       if (!grouped.containsKey(dateOnly)) {
         grouped[dateOnly] = [];
       }
@@ -74,10 +75,15 @@ class _HomePageState extends State<HomePage> {
     return grouped;
   }
 
+
   void undoDelete(DiaryEntry entry) async {
     await dbService.insertEntry(entry);
     loadEntries();
   }
+
+  String formatDate(DateTime date) {
+  return DateFormat('d MMMM yyyy, h:mm a').format(date).toUpperCase();
+}
 
   @override
   Widget build(BuildContext context) {
@@ -112,13 +118,34 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
                 Spacer(),
-                DropdownButton<String>(
-                  value: sortOption,
-                  items: sortOptions.map((opt) => DropdownMenuItem(value: opt, child: Text(opt))).toList(),
-                  onChanged: (value) {
-                    setState(() => sortOption = value!);
-                    applyFilters();
-                  },
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: sortOption,
+                      items: sortOptions.map((opt) {
+                        IconData icon = opt == 'Latest' ? Icons.arrow_downward : Icons.arrow_upward;
+                        return DropdownMenuItem(
+                          value: opt,
+                          child: Row(
+                            children: [
+                              Icon(icon, size: 18),
+                              SizedBox(width: 8),
+                              Text(opt),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() => sortOption = value!);
+                        applyFilters();
+                      },
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -136,7 +163,7 @@ class _HomePageState extends State<HomePage> {
                           Padding(
                             padding: EdgeInsets.fromLTRB(16, 16, 16, 4),
                             child: Text(
-                              '🗓️ $date',
+                              '🗓️ ${DateFormat('d MMMM yyyy').format(DateTime.parse(date))}',
                               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -158,101 +185,101 @@ class _HomePageState extends State<HomePage> {
                                     content: Text('Entry deleted'),
                                     action: SnackBarAction(
                                       label: 'Undo',
-                                      textColor: Colors.yellow,
+                                      textColor: Colors.green,
                                       onPressed: () => undoDelete(entry),
                                     ),
                                   ),
                                 );
                               },
                               child: GestureDetector(
-                              onTap: () async {
-                                await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => EntryDetailPage(
-                                      entry: entry,
-                                      onUpdated: loadEntries,
-                                    ),
+                            onTap: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => EntryDetailPage(
+                                    entry: entry,
+                                    onUpdated: loadEntries,
                                   ),
-                                );
-                              },
-                              child: Container(
-                                margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                padding: EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.purple,
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.pink,
-                                      blurRadius: 6,
-                                      offset: Offset(0, 3),
-                                    ),
-                                  ],
                                 ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(entry.mood, style: TextStyle(fontSize: 24)),
-                                            SizedBox(width: 8),
-                                            Text(
-                                              entry.title,
-                                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                            ),
-                                          ],
-                                        ),
-                                        PopupMenuButton<String>(
-                                          onSelected: (value) async {
-                                            if (value == 'edit') {
-                                              await Navigator.push(
-                                                context,
-                                                MaterialPageRoute(builder: (_) => AddEntryPage(entry: entry)),
-                                              );
-                                              loadEntries();
-                                            } else if (value == 'delete') {
-                                              await dbService.deleteEntry(entry.id!);
-                                              loadEntries();
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                  content: Text('Entry deleted'),
-                                                  action: SnackBarAction(
-                                                    label: 'Undo',
-                                                    textColor: Colors.yellow,
-                                                    onPressed: () => undoDelete(entry),
-                                                  ),
+                              );
+                            },
+                            child: Container(
+                              margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.purple,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.pink,
+                                    blurRadius: 6,
+                                    offset: Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(entry.mood, style: TextStyle(fontSize: 24)),
+                                          SizedBox(width: 8),
+                                          Text(
+                                            entry.title,
+                                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
+                                      PopupMenuButton<String>(
+                                        onSelected: (value) async {
+                                          if (value == 'edit') {
+                                            await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(builder: (_) => AddEntryPage(entry: entry)),
+                                            );
+                                            loadEntries();
+                                          } else if (value == 'delete') {
+                                            await dbService.deleteEntry(entry.id!);
+                                            loadEntries();
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text('Entry deleted'),
+                                                action: SnackBarAction(
+                                                  label: 'Undo',
+                                                  textColor: Colors.yellow,
+                                                  onPressed: () => undoDelete(entry),
                                                 ),
-                                              );
-                                            }
-                                          },
-                                          itemBuilder: (context) => [
-                                            PopupMenuItem(value: 'edit', child: Text('Edit')),
-                                            PopupMenuItem(value: 'delete', child: Text('Delete')),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 6),
-                                    Text(
-                                      entry.content,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(color: Colors.black87),
-                                    ),
-                                    SizedBox(height: 6),
-                                    Text(
-                                      entry.date,
-                                      style: TextStyle(color: Colors.black, fontSize: 13),
-                                    ),
-                                  ],
-                                ),
+                                              ),
+                                            );
+                                          }
+                                        },
+                                        itemBuilder: (context) => [
+                                          PopupMenuItem(value: 'edit', child: Text('Edit')),
+                                          PopupMenuItem(value: 'delete', child: Text('Delete')),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 6),
+                                  Text(
+                                    entry.content,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(color: Colors.black87),
+                                  ),
+                                  SizedBox(height: 6),
+                                  Text(
+                                    formatDate(entry.date),
+                                    style: TextStyle(color: Colors.black, fontSize: 13),
+                                  ),
+                                ],
                               ),
                             ),
-                          );
+                          ),
+                            );
                           }).toList(),
                         ],
                       );

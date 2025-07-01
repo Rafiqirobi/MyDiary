@@ -16,6 +16,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
   final contentController = TextEditingController();
   String selectedMood = '🙂';
   List<String> moods = ['🙂', '😊', '😢', '😡', '😴', '😃'];
+  String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
   final dbService = DBService();
 
   @override
@@ -29,7 +30,8 @@ class _AddEntryPageState extends State<AddEntryPage> {
   }
 
   void saveEntry() async {
-    final now = DateFormat('d MMMM yyyy – kk:mm').format(DateTime.now());
+    final now = DateTime.now();
+
     if (widget.entry != null) {
       final updatedEntry = DiaryEntry(
         id: widget.entry!.id,
@@ -48,8 +50,11 @@ class _AddEntryPageState extends State<AddEntryPage> {
       );
       await dbService.insertEntry(newEntry);
     }
+
     Navigator.pop(context);
   }
+
+
 
   @override
   Widget build(BuildContext context) {
