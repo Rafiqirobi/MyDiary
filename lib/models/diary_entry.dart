@@ -3,14 +3,16 @@ class DiaryEntry {
   final String title;
   final String content;
   final DateTime date;
-  final String mood; // 😊 😢 etc.
+  final String mood;
+  final String? imagePath; // ← New field
 
   DiaryEntry({
     this.id,
     required this.title,
     required this.content,
     required this.date,
-    this.mood = '🙂', // default mood
+    this.mood = '🙂',
+    this.imagePath, // ← New field in constructor
   });
 
   factory DiaryEntry.fromMap(Map<String, dynamic> map) {
@@ -18,8 +20,9 @@ class DiaryEntry {
       id: map['id'],
       title: map['title'],
       content: map['content'],
-      date: DateTime.parse(map['date']), // convert from String
+      date: DateTime.parse(map['date']),
       mood: map['mood'] ?? '🙂',
+      imagePath: map['imagePath'], // ← Load image path
     );
   }
 
@@ -28,8 +31,9 @@ class DiaryEntry {
       'id': id,
       'title': title,
       'content': content,
-      'date': date.toIso8601String(), // save as String
+      'date': date.toIso8601String(),
       'mood': mood,
+      'imagePath': imagePath, // ← Save image path
     };
   }
 }

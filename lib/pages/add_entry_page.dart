@@ -1,4 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:mydiary/models/diary_entry.dart';
 import 'package:mydiary/services/db_service.dart';
 
@@ -13,12 +16,14 @@ class AddEntryPage extends StatefulWidget {
 class _AddEntryPageState extends State<AddEntryPage> {
   final titleController = TextEditingController();
   final contentController = TextEditingController();
-  String selectedMood = '😄';
+  String selectedMood = '🙂';
+  File? selectedImage;
+  final picker = ImagePicker();
 
   final List<Map<String, String>> moodOptions = [
-    {'emoji': '😄', 'label': 'Happiness'},
-    {'emoji': '😢', 'label': 'Sadness'},
-    {'emoji': '😠', 'label': 'Anger'},
+    {'emoji': '😄', 'label': 'Happy'},
+    {'emoji': '😢', 'label': 'Sad'},
+    {'emoji': '😡', 'label': 'Angry'},
     {'emoji': '😱', 'label': 'Fear'},
     {'emoji': '😲', 'label': 'Surprise'},
     {'emoji': '🤢', 'label': 'Disgust'},
@@ -33,6 +38,18 @@ class _AddEntryPageState extends State<AddEntryPage> {
       titleController.text = widget.entry!.title;
       contentController.text = widget.entry!.content;
       selectedMood = widget.entry!.mood;
+      if (widget.entry!.imagePath != null) {
+        selectedImage = File(widget.entry!.imagePath!);
+      }
+    }
+  }
+
+  Future<void> pickImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        selectedImage = File(pickedFile.path);
+      });
     }
   }
 
@@ -45,6 +62,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
       content: contentController.text,
       date: now,
       mood: selectedMood,
+      imagePath: selectedImage?.path,
     );
 
     if (widget.entry != null) {
@@ -58,14 +76,13 @@ class _AddEntryPageState extends State<AddEntryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final selectedMoodMap =
-        moodOptions.firstWhere((m) => m['emoji'] == selectedMood);
+    final selectedMoodMap = moodOptions.firstWhere((m) => m['emoji'] == selectedMood);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.entry != null ? "Edit Entry" : "New Entry"),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
@@ -110,6 +127,22 @@ class _AddEntryPageState extends State<AddEntryPage> {
                 ),
               ],
             ),
+            SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: pickImage,
+              icon: Icon(Icons.image),
+              label: Text("Pick Image"),
+            ),
+            SizedBox(height: 10),
+            if (selectedImage != null)
+              Container(
+                height: 200,
+                width: double.infinity,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.file(selectedImage!, fit: BoxFit.cover),
+                ),
+              ),
             SizedBox(height: 30),
             ElevatedButton(
               onPressed: saveEntry,

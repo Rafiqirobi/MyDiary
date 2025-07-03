@@ -13,7 +13,12 @@ class DBService {
 
   Future<Database> _initDB() async {
     final path = join(await getDatabasesPath(), 'diary.db');
-    return openDatabase(path, version: 1, onCreate: _createDB);
+    return openDatabase(
+      path,
+      version: 2, // <-- bumped version
+      onCreate: _createDB,
+      onUpgrade: _upgradeDB,
+    );
   }
 
   Future _createDB(Database db, int version) async {
@@ -22,10 +27,17 @@ class DBService {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT,
         content TEXT,
-        date TEXT, -- still store as TEXT in DB (ISO8601 format)
-        mood TEXT
+        date TEXT,
+        mood TEXT,
+        imagePath TEXT -- <-- new column
       )
     ''');
+  }
+
+  Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE diary ADD COLUMN imagePath TEXT');
+    }
   }
 
   Future<void> insertEntry(DiaryEntry entry) async {
@@ -39,7 +51,7 @@ class DBService {
 
   Future<List<DiaryEntry>> getEntries() async {
     final db = await database;
-    final result = await db.query('diary', orderBy: 'date DESC'); // sort by ISO8601 string
+    final result = await db.query('diary', orderBy: 'date DESC');
     return result.map((e) => DiaryEntry.fromMap(e)).toList();
   }
 
@@ -59,7 +71,7 @@ class DBService {
   }
 
   Future<void> deleteAllEntries() async {
-  final db = await database;
-  await db.delete('diary');
-}
+    final db = await database;
+    await db.delete('diary');
+  }
 }
