@@ -313,8 +313,8 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.purple,
-        child: Icon(Icons.edit_note),
+        backgroundColor: Colors.cyanAccent,
+        child: Icon(Icons.add , color: Colors.black),
         onPressed: () async {
           await Navigator.push(context, MaterialPageRoute(builder: (_) => AddEntryPage()));
           loadEntries();
