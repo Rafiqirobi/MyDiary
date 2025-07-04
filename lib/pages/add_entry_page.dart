@@ -16,9 +16,10 @@ class AddEntryPage extends StatefulWidget {
 class _AddEntryPageState extends State<AddEntryPage> {
   final titleController = TextEditingController();
   final contentController = TextEditingController();
-  String selectedMood = '😄'; // use emoji from moodOptions
+  String selectedMood = '😄';
   File? selectedImage;
   final picker = ImagePicker();
+  final dbService = DBService();
 
   final List<Map<String, String>> moodOptions = [
     {'emoji': '😄', 'label': 'Happy'},
@@ -28,8 +29,6 @@ class _AddEntryPageState extends State<AddEntryPage> {
     {'emoji': '😲', 'label': 'Surprise'},
     {'emoji': '🤢', 'label': 'Disgust'},
   ];
-
-  final dbService = DBService();
 
   @override
   void initState() {
@@ -45,11 +44,32 @@ class _AddEntryPageState extends State<AddEntryPage> {
   }
 
   Future<void> pickImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        selectedImage = File(pickedFile.path);
-      });
+    final source = await showDialog<ImageSource>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Select Image Source"),
+        actions: [
+          TextButton.icon(
+            onPressed: () => Navigator.pop(context, ImageSource.camera),
+            icon: Icon(Icons.camera_alt),
+            label: Text("Camera"),
+          ),
+          TextButton.icon(
+            onPressed: () => Navigator.pop(context, ImageSource.gallery),
+            icon: Icon(Icons.photo_library),
+            label: Text("Gallery"),
+          ),
+        ],
+      ),
+    );
+
+    if (source != null) {
+      final pickedFile = await picker.pickImage(source: source);
+      if (pickedFile != null) {
+        setState(() {
+          selectedImage = File(pickedFile.path);
+        });
+      }
     }
   }
 
