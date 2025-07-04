@@ -99,11 +99,13 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final groupedEntries = groupEntriesByDate(filteredEntries);
+    final theme = Theme.of(context);
+    final textColor = theme.textTheme.bodyLarge!.color;
 
     return Scaffold(
       appBar: AppBar(
         title: Text("My Diary"),
-        backgroundColor: Color(0xFF87CEEB),
+        backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
       ),
       body: Column(
@@ -183,9 +185,14 @@ class _HomePageState extends State<HomePage> {
           ),
           Expanded(
             child: filteredEntries.isEmpty
-                ? Center(child: Text("No entries found"))
+                ? Center(
+                    child: Text(
+                      "No entries found",
+                      style: TextStyle(color: textColor),
+                    ),
+                  )
                 : ListView(
-                    children: groupEntriesByDate(filteredEntries).entries.map((group) {
+                    children: groupedEntries.entries.map((group) {
                       final date = group.key;
                       final entriesOnDate = group.value;
                       return Column(
@@ -195,7 +202,7 @@ class _HomePageState extends State<HomePage> {
                             padding: EdgeInsets.fromLTRB(16, 16, 16, 4),
                             child: Text(
                               '🗓️ $date',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textColor),
                             ),
                           ),
                           ...entriesOnDate.map((entry) {
@@ -238,14 +245,15 @@ class _HomePageState extends State<HomePage> {
                                   margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                   padding: EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: theme.cardColor,
                                     borderRadius: BorderRadius.circular(12),
                                     boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black12,
-                                        blurRadius: 6,
-                                        offset: Offset(0, 3),
-                                      ),
+                                      if (!theme.brightness.toString().contains('dark'))
+                                        BoxShadow(
+                                          color: Colors.black12,
+                                          blurRadius: 6,
+                                          offset: Offset(0, 3),
+                                        ),
                                     ],
                                   ),
                                   child: Column(
@@ -258,8 +266,10 @@ class _HomePageState extends State<HomePage> {
                                             File(entry.imagePath!),
                                             height: 200,
                                             width: double.infinity,
+                                            fit: BoxFit.cover,
                                           ),
                                         ),
+                                      SizedBox(height: 8),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
@@ -269,7 +279,7 @@ class _HomePageState extends State<HomePage> {
                                               SizedBox(width: 8),
                                               Text(
                                                 entry.title,
-                                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor),
                                               ),
                                             ],
                                           ),
@@ -308,12 +318,12 @@ class _HomePageState extends State<HomePage> {
                                         entry.content,
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(color: Colors.black87),
+                                        style: TextStyle(color: textColor?.withOpacity(0.8)),
                                       ),
                                       SizedBox(height: 6),
                                       Text(
                                         formatDate(entry.date),
-                                        style: TextStyle(color: Colors.black, fontSize: 13),
+                                        style: TextStyle(color: textColor?.withOpacity(0.6), fontSize: 13),
                                       ),
                                     ],
                                   ),
@@ -329,7 +339,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Color(0xFF87CEEB),
+        backgroundColor: theme.colorScheme.primary,
         child: Icon(Icons.add, color: Colors.white),
         onPressed: () async {
           await Navigator.push(context, MaterialPageRoute(builder: (_) => AddEntryPage()));

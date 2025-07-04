@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mydiary/pages/login_page.dart';
 import 'package:mydiary/pages/main_page.dart';
 import 'package:mydiary/services/notification_service.dart';
+import 'package:mydiary/models/theme.dart'; // ← custom themes
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,10 +40,12 @@ class MyApp extends StatelessWidget {
       builder: (context, isDark, _) {
         return MaterialApp(
           title: 'My Diary',
-          theme: isDark ? ThemeData.dark() : ThemeData.light(),
+          theme: lightTheme,
+          darkTheme: darkTheme,
+          themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
           debugShowCheckedModeBanner: false,
           home: StreamBuilder<User?>(
-            stream: FirebaseAuth.instance.authStateChanges(), // ✅ listens for login/logout
+            stream: FirebaseAuth.instance.authStateChanges(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Scaffold(

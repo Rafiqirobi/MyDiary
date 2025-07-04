@@ -29,15 +29,21 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final Color primaryColor = isDark ? Colors.tealAccent : Color(0xFF87CEEB);
-    final TextStyle sectionTitleStyle =
-        TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: primaryColor);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDarkMode = theme.brightness == Brightness.dark;
+
+    final sectionTitleStyle = TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+      color: colorScheme.primary,
+    );
 
     return Scaffold(
       appBar: AppBar(
         title: Text("Settings"),
-        backgroundColor: primaryColor,
         elevation: 0,
+        backgroundColor: theme.appBarTheme.backgroundColor,
       ),
       body: ListView(
         padding: EdgeInsets.all(16),
@@ -58,18 +64,14 @@ class _SettingsPageState extends State<SettingsPage> {
           Card(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             elevation: 3,
-            child: Column(
-              children: [
-                ListTile(
-                  leading: Icon(Icons.notifications),
-                  title: Text("Daily Entry Reminder"),
-                  subtitle: Text("Set a notification to write a daily diary"),
-                  trailing: Icon(Icons.chevron_right),
-                  onTap: () {
-                    // Navigate to reminder settings (to implement)
-                  },
-                ),
-              ],
+            child: ListTile(
+              leading: Icon(Icons.notifications),
+              title: Text("Daily Entry Reminder"),
+              subtitle: Text("Set a notification to write a daily diary"),
+              trailing: Icon(Icons.chevron_right),
+              onTap: () {
+                // To be implemented
+              },
             ),
           ),
           SizedBox(height: 20),
@@ -85,7 +87,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   subtitle: Text("Backup your diary to the cloud or restore it"),
                   trailing: Icon(Icons.chevron_right),
                   onTap: () {
-                    // Implement backup/restore logic
+                    // Backup & restore logic
                   },
                 ),
                 Divider(height: 1),

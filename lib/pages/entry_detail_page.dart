@@ -75,8 +75,8 @@ class EntryDetailPage extends StatelessWidget {
       appBar: AppBar(
         title: Text("Entry Detail"),
         actions: [
-          IconButton(icon: Icon(Icons.edit), onPressed: () => editEntry(context)),
-          IconButton(icon: Icon(Icons.delete), onPressed: () => showDeleteConfirmation(context)),
+          IconButton(icon: Icon(Icons.edit, color: Theme.of(context).iconTheme.color), onPressed: () => editEntry(context)),
+          IconButton(icon: Icon(Icons.delete, color: Theme.of(context).iconTheme.color), onPressed: () => showDeleteConfirmation(context)),
         ],
       ),
       body: SingleChildScrollView(

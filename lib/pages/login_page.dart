@@ -17,16 +17,24 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final _auth = AuthService();
+
   String error = '';
   bool _obscurePassword = true;
+  bool _isLoading = false;
 
   void login() async {
+    setState(() {
+      _isLoading = true;
+      error = '';
+    });
+
     try {
       final user = await _auth.signIn(
         emailController.text.trim(),
         passwordController.text.trim(),
       );
       if (user != null) {
+        if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -38,26 +46,46 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     } catch (e) {
-      setState(() => error = 'Login failed. Please check your credentials.');
+      if (mounted) {
+        setState(() {
+          error = '❌ Login failed. Please check your credentials.';
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = widget.isDarkMode;
+    final primaryColor = isDark ? Colors.tealAccent : const Color(0xFF87CEEB);
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.lock, size: 64, color: theme.colorScheme.primary),
+              Icon(Icons.lock, size: 64, color: primaryColor),
               const SizedBox(height: 24),
               Text(
                 "Welcome Back",
-                style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
@@ -65,15 +93,22 @@ class _LoginPageState extends State<LoginPage> {
                 style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey),
               ),
               const SizedBox(height: 32),
+
+              // Email
               TextField(
                 controller: emailController,
+                keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: 'Email',
                   prefixIcon: Icon(Icons.email_outlined),
+                  filled: true,
+                  fillColor: isDark ? Colors.grey : Colors.black,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
               const SizedBox(height: 16),
+
+              // Password
               TextField(
                 controller: passwordController,
                 obscureText: _obscurePassword,
@@ -83,34 +118,70 @@ class _LoginPageState extends State<LoginPage> {
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                      color: Colors.grey,
                     ),
                     onPressed: () {
                       setState(() => _obscurePassword = !_obscurePassword);
                     },
                   ),
+                  filled: true,
+                  fillColor: isDark ? Colors.grey : Colors.black,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
               const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: login,
-                icon: Icon(Icons.login),
-                label: Text("Login"),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(double.infinity, 50),
-                  backgroundColor: theme.colorScheme.primary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-              const SizedBox(height: 12),
+
+              // Login Button
+              _isLoading
+                  ? CircularProgressIndicator(color: primaryColor)
+                  : ElevatedButton.icon(
+                      onPressed: login,
+                      icon: Icon(Icons.login),
+                      label: Text("Login"),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(double.infinity, 50),
+                        backgroundColor: primaryColor,
+                        foregroundColor: isDark ? Colors.black : Colors.black,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+              const SizedBox(height: 16),
+
+              // Error Message
               if (error.isNotEmpty)
-                Text(error, style: TextStyle(color: Colors.red, fontWeight: FontWeight.w500)),
-              const SizedBox(height: 12),
+                Container(
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    border: Border.all(color: Colors.red),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.error_outline, color: Colors.red),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          error,
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 16),
+
+              // Signup Redirect
               TextButton(
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => SignupPage()),
+                    MaterialPageRoute(
+                      builder: (_) => SignupPage(
+                        isDarkMode: widget.isDarkMode,
+                        onThemeChanged: widget.onThemeChanged,
+                      ),
+                    ),
                   );
                 },
                 child: Text("Don't have an account? Sign up"),
