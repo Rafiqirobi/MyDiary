@@ -32,15 +32,27 @@ class _MainPageState extends State<MainPage> {
 
     return Scaffold(
       body: pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (int index) {
-          setState(() => _selectedIndex = index);
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+      bottomNavigationBar: NavigationBar(
+        height: 70,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: (int index) => setState(() => _selectedIndex = index),
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.book_outlined),
+            selectedIcon: Icon(Icons.book),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
         ],
       ),
     );

@@ -18,32 +18,55 @@ class EntryDetailPage extends StatelessWidget {
   }
 
   void showDeleteConfirmation(BuildContext context) async {
-    await dbService.deleteEntry(entry.id!);
-    onUpdated();
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Entry deleted'),
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: () async {
-            await dbService.insertEntry(entry);
-            onUpdated();
-          },
-        ),
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("Delete Entry?"),
+        content: Text("This action cannot be undone. Do you want to continue?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text("Cancel"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: Text("Delete"),
+          ),
+        ],
       ),
     );
+
+    if (confirm == true) {
+      await dbService.deleteEntry(entry.id!);
+      onUpdated();
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Entry deleted'),
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () async {
+              await dbService.insertEntry(entry);
+              onUpdated();
+            },
+          ),
+        ),
+      );
+    }
   }
 
   void editEntry(BuildContext context) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => AddEntryPage(entry: entry),
-      ),
+      MaterialPageRoute(builder: (_) => AddEntryPage(entry: entry)),
     );
     onUpdated();
-    Navigator.pop(context); // Close detail page after editing
+    Navigator.pop(context); // close detail page
   }
 
   @override
@@ -52,48 +75,60 @@ class EntryDetailPage extends StatelessWidget {
       appBar: AppBar(
         title: Text("Entry Detail"),
         actions: [
-          IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: () => editEntry(context),
-          ),
-          IconButton(
-            icon: Icon(Icons.delete),
-            onPressed: () => showDeleteConfirmation(context),
-          ),
+          IconButton(icon: Icon(Icons.edit), onPressed: () => editEntry(context)),
+          IconButton(icon: Icon(Icons.delete), onPressed: () => showDeleteConfirmation(context)),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (entry.imagePath != null && entry.imagePath!.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.file(
-                    File(entry.imagePath!),
-                    fit: BoxFit.contain, // Show full image, scale to width
-                    width: double.infinity,
-                  ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.file(
+                  File(entry.imagePath!),
+                  width: double.infinity,
+                  height: 220,
+                  
                 ),
               ),
-            Text(entry.mood, style: TextStyle(fontSize: 32)),
-            SizedBox(height: 12),
-            Text(
-              entry.title,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 12),
-            Text(
-              formatDate(entry.date),
-              style: TextStyle(fontSize: 14, color: Colors.grey),
-            ),
-            SizedBox(height: 24),
-            Text(
-              entry.content,
-              style: TextStyle(fontSize: 16),
+            const SizedBox(height: 20),
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(entry.mood, style: TextStyle(fontSize: 32)),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            entry.title,
+                            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      formatDate(entry.date),
+                      style: TextStyle(color: Colors.grey, fontSize: 14),
+                    ),
+                    Divider(height: 30, thickness: 1),
+                    Text(
+                      entry.content,
+                      style: TextStyle(fontSize: 16, height: 1.5),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),

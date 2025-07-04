@@ -116,5 +116,5 @@ flutter_icons:
   android: true
   ios: true
   image_path: "assets/diary_logo.png" 
-  adaptive_icon_background: "#87CEEB"
+  adaptive_icon_background: "#00FFFF"
   adaptive_icon_foreground: "assets/diary_logo.png" 

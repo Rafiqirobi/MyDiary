@@ -108,68 +108,93 @@ class _AddEntryPageState extends State<AddEntryPage> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
               controller: titleController,
-              decoration: InputDecoration(labelText: "Title"),
+              decoration: InputDecoration(
+                labelText: "Title",
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
+            SizedBox(height: 16),
             TextField(
               controller: contentController,
-              maxLines: 5,
-              decoration: InputDecoration(labelText: "Content"),
+              maxLines: 6,
+              decoration: InputDecoration(
+                labelText: "Content",
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
-            SizedBox(height: 20),
-            Row(
-              children: [
-                Text("Mood:", style: TextStyle(fontSize: 16)),
-                SizedBox(width: 10),
-                Expanded(
-                  child: DropdownButton<Map<String, String>>(
-                    isExpanded: true,
-                    value: selectedMoodMap,
-                    items: moodOptions.map((mood) {
-                      return DropdownMenuItem<Map<String, String>>(
-                        value: mood,
-                        child: Row(
-                          children: [
-                            Text(mood['emoji']!, style: TextStyle(fontSize: 24)),
-                            SizedBox(width: 10),
-                            Text(mood['label']!, style: TextStyle(fontSize: 16)),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          selectedMood = value['emoji']!;
-                        });
-                      }
-                    },
-                  ),
+            SizedBox(height: 16),
+            Text("Mood", style: Theme.of(context).textTheme.titleMedium),
+            SizedBox(height: 8),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<Map<String, String>>(
+                  isExpanded: true,
+                  value: selectedMoodMap,
+                  items: moodOptions.map((mood) {
+                    return DropdownMenuItem<Map<String, String>>(
+                      value: mood,
+                      child: Row(
+                        children: [
+                          Text(mood['emoji']!, style: TextStyle(fontSize: 22)),
+                          SizedBox(width: 12),
+                          Text(mood['label']!, style: TextStyle(fontSize: 16)),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        selectedMood = value['emoji']!;
+                      });
+                    }
+                  },
                 ),
-              ],
+              ),
             ),
             SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: pickImage,
               icon: Icon(Icons.image),
               label: Text("Pick Image"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 12),
             if (selectedImage != null)
-              Container(
-                height: 200,
-                width: double.infinity,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.file(selectedImage!, fit: BoxFit.cover),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.file(
+                  selectedImage!,
+                  height: 200,
+                  width: double.infinity,
                 ),
               ),
             SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: saveEntry,
-              child: Text("Save", style: TextStyle(fontSize: 16)),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: saveEntry,
+                child: Text("Save", style: TextStyle(fontSize: 16)),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14),
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
             ),
           ],
         ),

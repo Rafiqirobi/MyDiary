@@ -39,14 +39,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   void loadEntries() async {
-  final data = await dbService.getEntries();
+    final data = await dbService.getEntries();
     if (!mounted) return;
     setState(() {
       entries = data;
       applyFilters();
     });
   }
-
 
   void applyFilters() {
     List<DiaryEntry> results = entries;
@@ -102,7 +101,11 @@ class _HomePageState extends State<HomePage> {
     final groupedEntries = groupEntriesByDate(filteredEntries);
 
     return Scaffold(
-      appBar: AppBar(title: Text("My Diary")),
+      appBar: AppBar(
+        title: Text("My Diary"),
+        backgroundColor: Color(0xFF87CEEB),
+        elevation: 0,
+      ),
       body: Column(
         children: [
           Padding(
@@ -235,11 +238,11 @@ class _HomePageState extends State<HomePage> {
                                   margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                   padding: EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: Colors.purple,
+                                    color: Colors.white,
                                     borderRadius: BorderRadius.circular(12),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.pink,
+                                        color: Colors.black12,
                                         blurRadius: 6,
                                         offset: Offset(0, 3),
                                       ),
@@ -249,15 +252,12 @@ class _HomePageState extends State<HomePage> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       if (entry.imagePath != null && entry.imagePath!.isNotEmpty)
-                                        Container(
-                                          margin: EdgeInsets.only(bottom: 8),
-                                          height: 150,
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(12),
-                                            image: DecorationImage(
-                                              image: FileImage(File(entry.imagePath!)),
-                                            ),
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(12),
+                                          child: Image.file(
+                                            File(entry.imagePath!),
+                                            height: 200,
+                                            width: double.infinity,
                                           ),
                                         ),
                                       Row(
@@ -329,8 +329,8 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.cyanAccent,
-        child: Icon(Icons.add, color: Colors.black),
+        backgroundColor: Color(0xFF87CEEB),
+        child: Icon(Icons.add, color: Colors.white),
         onPressed: () async {
           await Navigator.push(context, MaterialPageRoute(builder: (_) => AddEntryPage()));
           loadEntries();
