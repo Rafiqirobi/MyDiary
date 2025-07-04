@@ -102,7 +102,7 @@ class _LoginPageState extends State<LoginPage> {
                   labelText: 'Email',
                   prefixIcon: Icon(Icons.email_outlined),
                   filled: true,
-                  fillColor: isDark ? Colors.grey : Colors.black,
+                  fillColor: isDark ? Colors.black : Colors.grey[200],
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
@@ -125,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   ),
                   filled: true,
-                  fillColor: isDark ? Colors.grey : Colors.black,
+                  fillColor: isDark ? Colors.black : Colors.grey[200],
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
@@ -174,7 +174,7 @@ class _LoginPageState extends State<LoginPage> {
               // Signup Redirect
               TextButton(
                 onPressed: () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (_) => SignupPage(

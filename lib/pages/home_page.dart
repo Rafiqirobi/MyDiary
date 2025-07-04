@@ -266,7 +266,6 @@ class _HomePageState extends State<HomePage> {
                                             File(entry.imagePath!),
                                             height: 200,
                                             width: double.infinity,
-                                            fit: BoxFit.cover,
                                           ),
                                         ),
                                       SizedBox(height: 8),
