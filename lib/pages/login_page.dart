@@ -102,9 +102,10 @@ class _LoginPageState extends State<LoginPage> {
                   labelText: 'Email',
                   prefixIcon: Icon(Icons.email_outlined),
                   filled: true,
-                  fillColor: isDark ? Colors.black : Colors.grey[200],
+                  fillColor: isDark ? Colors.grey[300] : Colors.white,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
+                style: TextStyle(color: isDark ? Colors.black : Colors.black),
               ),
               const SizedBox(height: 16),
 
@@ -125,9 +126,10 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   ),
                   filled: true,
-                  fillColor: isDark ? Colors.black : Colors.grey[200],
+                  fillColor: isDark ? Colors.grey[300] : Colors.white,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
+                style: TextStyle(color: isDark ? Colors.black : Colors.black),
               ),
               const SizedBox(height: 24),
 

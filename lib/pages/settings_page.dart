@@ -31,12 +31,25 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final isDarkMode = theme.brightness == Brightness.dark;
 
     final sectionTitleStyle = TextStyle(
       fontSize: 16,
       fontWeight: FontWeight.bold,
       color: colorScheme.primary,
+    );
+
+    BoxDecoration boxStyle = BoxDecoration(
+      color: theme.cardColor,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: Colors.grey.shade300),
+      boxShadow: [
+        if (!theme.brightness.toString().contains('dark'))
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          )
+      ],
     );
 
     return Scaffold(
@@ -49,62 +62,49 @@ class _SettingsPageState extends State<SettingsPage> {
         padding: EdgeInsets.all(16),
         children: [
           Text("Appearance", style: sectionTitleStyle),
-          Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            elevation: 3,
+          SizedBox(height: 8),
+          Container(
+            decoration: boxStyle,
             child: SwitchListTile(
               title: Text("Dark Mode"),
               secondary: Icon(Icons.dark_mode),
               value: isDark,
               onChanged: toggleTheme,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
           SizedBox(height: 20),
           Text("Reminders", style: sectionTitleStyle),
-          Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            elevation: 3,
+          SizedBox(height: 8),
+          Container(
+            decoration: boxStyle,
             child: ListTile(
               leading: Icon(Icons.notifications),
               title: Text("Daily Entry Reminder"),
               subtitle: Text("Set a notification to write a daily diary"),
               trailing: Icon(Icons.chevron_right),
               onTap: () {
-                // To be implemented
+                // TODO: Implement notification setup
               },
             ),
           ),
           SizedBox(height: 20),
           Text("General", style: sectionTitleStyle),
-          Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            elevation: 3,
-            child: Column(
-              children: [
-                ListTile(
-                  leading: Icon(Icons.backup),
-                  title: Text("Backup & Restore"),
-                  subtitle: Text("Backup your diary to the cloud or restore it"),
-                  trailing: Icon(Icons.chevron_right),
-                  onTap: () {
-                    // Backup & restore logic
-                  },
-                ),
-                Divider(height: 1),
-                ListTile(
-                  leading: Icon(Icons.info_outline),
-                  title: Text("About"),
-                  trailing: Icon(Icons.chevron_right),
-                  onTap: () {
-                    showAboutDialog(
-                      context: context,
-                      applicationName: "My Diary",
-                      applicationVersion: "1.0.0",
-                      applicationLegalese: "© 2025 Rafiqi",
-                    );
-                  },
-                ),
-              ],
+          SizedBox(height: 8),
+          Container(
+            decoration: boxStyle,
+            child: ListTile(
+              leading: Icon(Icons.info_outline),
+              title: Text("About"),
+              trailing: Icon(Icons.chevron_right),
+              onTap: () {
+                showAboutDialog(
+                  context: context,
+                  applicationName: "My Diary",
+                  applicationVersion: "1.0.0",
+                  applicationLegalese: "© 2025 Rafiqi",
+                );
+              },
             ),
           ),
         ],

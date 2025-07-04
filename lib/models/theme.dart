@@ -5,11 +5,11 @@ final ThemeData lightTheme = ThemeData(
   primaryColor: Colors.blueAccent,
   scaffoldBackgroundColor: Colors.white,
   appBarTheme: AppBarTheme(
-    backgroundColor: Colors.white,
-    iconTheme: IconThemeData(color: Colors.blueAccent),
-    titleTextStyle: TextStyle(color: Colors.blueAccent, fontSize: 20),
+    backgroundColor: Colors.blueAccent,
+    iconTheme: IconThemeData(color: Colors.white),
+    titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
   ),
-  cardColor: Colors.white,
+  cardColor: Colors.blue[100],
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent),
   ),
@@ -17,8 +17,9 @@ final ThemeData lightTheme = ThemeData(
 
 final ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
-  scaffoldBackgroundColor: Colors.grey[900],
-  cardColor: Colors.grey[850],
+  primaryColor: Colors.blueAccent,
+  scaffoldBackgroundColor: Colors.grey[800],
+  cardColor: Colors.grey[900],
   appBarTheme: AppBarTheme(
     backgroundColor: Colors.black,
     iconTheme: IconThemeData(color: Colors.blueAccent),

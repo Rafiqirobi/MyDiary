@@ -167,8 +167,8 @@ class _AddEntryPageState extends State<AddEntryPage> {
               icon: Icon(Icons.image),
               label: Text("Pick Image"),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Colors.white,
+                backgroundColor: Colors.blue[200],
+                foregroundColor: Colors.black,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
@@ -190,8 +190,8 @@ class _AddEntryPageState extends State<AddEntryPage> {
                 child: Text("Save", style: TextStyle(fontSize: 16)),
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 14),
-                  backgroundColor: Theme.of(context).colorScheme.secondary,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.blueAccent,
+                  foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),

@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mydiary/pages/login_page.dart';
+import 'package:intl/intl.dart';
 
 class ProfilePage extends StatefulWidget {
   final bool isDarkMode;
@@ -103,7 +104,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   SizedBox(height: 10),
                   Row(
                     children: [
-                      Text("DOB: ${selectedDob.toLocal().toString().split(' ')[0]}"),
+                      Text("DOB: ${DateFormat('d MMMM yyyy').format(selectedDob)}"),
                       IconButton(
                         icon: Icon(Icons.calendar_today),
                         onPressed: () async {
@@ -144,6 +145,10 @@ class _ProfilePageState extends State<ProfilePage> {
                   );
                 },
                 child: Text('Save'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.black,
+                  backgroundColor: Theme.of(context).primaryColor,
+                ),
               ),
             ],
           ),
@@ -166,41 +171,45 @@ class _ProfilePageState extends State<ProfilePage> {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            Material(
-              elevation: 4,
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: Theme.of(context).cardColor,
-                ),
-                child: Column(
-                  children: [
-                    GestureDetector(
-                      onTap: pickImage,
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundImage: _image != null ? FileImage(_image!) : null,
-                        child: _image == null ? Icon(Icons.person, size: 50) : null,
-                      ),
+            Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  if (Theme.of(context).brightness == Brightness.light)
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 6,
+                      offset: Offset(0, 3),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      username ?? '',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ],
+              ),
+              child: Column(
+                children: [
+                  GestureDetector(
+                    onTap: pickImage,
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundImage: _image != null ? FileImage(_image!) : null,
+                      child: _image == null ? Icon(Icons.person, size: 50) : null,
                     ),
-                    Text(
-                      user?.email ?? 'No email',
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                    SizedBox(height: 20),
-                    Divider(),
-                    _buildInfoTile("Gender", gender ?? ''),
-                    _buildInfoTile("Date of Birth", dob != null ? dob!.toLocal().toString().split(' ')[0] : 'Not set'),
-                    _buildInfoTile("Age", age?.toString() ?? 'Unknown'),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    username ?? '',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    user?.email ?? 'No email',
+                    style: TextStyle(color: Colors.black54, fontSize: 16),
+                  ),
+                  SizedBox(height: 20),
+                  Divider(),
+                  _buildInfoTile("Gender", gender ?? ''),
+                  _buildInfoTile("Date of Birth", dob != null ? DateFormat('d MMMM yyyy').format(dob!) : 'Not set'),
+                  _buildInfoTile("Age", age?.toString() ?? 'Unknown'),
+                ],
               ),
             ),
             SizedBox(height: 20),
@@ -210,6 +219,8 @@ class _ProfilePageState extends State<ProfilePage> {
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.black,
               ),
               onPressed: showEditProfileDialog,
             ),
@@ -219,6 +230,7 @@ class _ProfilePageState extends State<ProfilePage> {
               label: Text("Logout"),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
+                foregroundColor: Colors.black,
                 padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),

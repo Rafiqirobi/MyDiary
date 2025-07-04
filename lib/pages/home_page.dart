@@ -98,9 +98,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final groupedEntries = groupEntriesByDate(filteredEntries);
     final theme = Theme.of(context);
     final textColor = theme.textTheme.bodyLarge!.color;
+    final groupedEntries = groupEntriesByDate(filteredEntries);
 
     return Scaffold(
       appBar: AppBar(
@@ -184,162 +184,186 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           Expanded(
-            child: filteredEntries.isEmpty
-                ? Center(
-                    child: Text(
-                      "No entries found",
-                      style: TextStyle(color: textColor),
-                    ),
-                  )
-                : ListView(
-                    children: groupedEntries.entries.map((group) {
-                      final date = group.key;
-                      final entriesOnDate = group.value;
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(16, 16, 16, 4),
-                            child: Text(
-                              '🗓️ $date',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textColor),
-                            ),
+            child: RefreshIndicator(
+              onRefresh: () async {
+                await Future.delayed(Duration(milliseconds: 300));
+                loadEntries();
+              },
+              child: filteredEntries.isEmpty
+                  ? ListView(
+                      physics: AlwaysScrollableScrollPhysics(),
+                      children: [
+                        SizedBox(height: 100),
+                        Center(
+                          child: Text(
+                            "No entries found",
+                            style: TextStyle(color: textColor),
                           ),
-                          ...entriesOnDate.map((entry) {
-                            return Dismissible(
-                              key: Key(entry.id.toString()),
-                              background: Container(
-                                color: Colors.red,
-                                alignment: Alignment.centerRight,
-                                padding: EdgeInsets.only(right: 20),
-                                child: Icon(Icons.delete, color: Colors.white),
+                        ),
+                      ],
+                    )
+                  : ListView(
+                      physics: AlwaysScrollableScrollPhysics(),
+                      children: groupedEntries.entries.map((group) {
+                        final date = group.key;
+                        final entriesOnDate = group.value;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(16, 16, 16, 4),
+                              child: Text(
+                                '🗓️ $date',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textColor),
                               ),
-                              direction: DismissDirection.endToStart,
-                              onDismissed: (direction) async {
-                                await dbService.deleteEntry(entry.id!);
-                                loadEntries();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Entry deleted'),
-                                    action: SnackBarAction(
-                                      label: 'Undo',
-                                      textColor: Colors.green,
-                                      onPressed: () => undoDelete(entry),
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: GestureDetector(
-                                onTap: () async {
-                                  await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => EntryDetailPage(
-                                        entry: entry,
-                                        onUpdated: loadEntries,
-                                      ),
-                                    ),
+                            ),
+                            ...entriesOnDate.map((entry) {
+                              return TweenAnimationBuilder<double>(
+                                tween: Tween(begin: 0.0, end: 1.0),
+                                duration: Duration(milliseconds: 500),
+                                curve: Curves.easeIn,
+                                builder: (context, opacity, child) {
+                                  return Opacity(
+                                    opacity: opacity,
+                                    child: child,
                                   );
                                 },
-                                child: Container(
-                                  margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  padding: EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: theme.cardColor,
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      if (!theme.brightness.toString().contains('dark'))
-                                        BoxShadow(
-                                          color: Colors.black12,
-                                          blurRadius: 6,
-                                          offset: Offset(0, 3),
-                                        ),
-                                    ],
+                                child: Dismissible(
+                                  key: Key(entry.id.toString()),
+                                  background: Container(
+                                    color: Colors.red,
+                                    alignment: Alignment.centerRight,
+                                    padding: EdgeInsets.only(right: 20),
+                                    child: Icon(Icons.delete, color: Colors.white),
                                   ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      if (entry.imagePath != null && entry.imagePath!.isNotEmpty)
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(12),
-                                          child: Image.file(
-                                            File(entry.imagePath!),
-                                            height: 200,
-                                            width: double.infinity,
+                                  direction: DismissDirection.endToStart,
+                                  onDismissed: (direction) async {
+                                    await dbService.deleteEntry(entry.id!);
+                                    loadEntries();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Entry deleted'),
+                                        action: SnackBarAction(
+                                          label: 'Undo',
+                                          textColor: Colors.green,
+                                          onPressed: () => undoDelete(entry),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: GestureDetector(
+                                    onTap: () async {
+                                      await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => EntryDetailPage(
+                                            entry: entry,
+                                            onUpdated: loadEntries,
                                           ),
                                         ),
-                                      SizedBox(height: 8),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      );
+                                    },
+                                    child: Container(
+                                      margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                      padding: EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: theme.cardColor,
+                                        borderRadius: BorderRadius.circular(12),
+                                        boxShadow: [
+                                          if (!theme.brightness.toString().contains('dark'))
+                                            BoxShadow(
+                                              color: Colors.black12,
+                                              blurRadius: 6,
+                                              offset: Offset(0, 3),
+                                            ),
+                                        ],
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
+                                          if (entry.imagePath != null && entry.imagePath!.isNotEmpty)
+                                            ClipRRect(
+                                              borderRadius: BorderRadius.circular(12),
+                                              child: Image.file(
+                                                File(entry.imagePath!),
+                                                height: 200,
+                                                width: double.infinity,
+                                              ),
+                                            ),
+                                          SizedBox(height: 8),
                                           Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text(entry.mood, style: TextStyle(fontSize: 24)),
-                                              SizedBox(width: 8),
-                                              Text(
-                                                entry.title,
-                                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor),
+                                              Row(
+                                                children: [
+                                                  Text(entry.mood, style: TextStyle(fontSize: 24)),
+                                                  SizedBox(width: 8),
+                                                  Text(
+                                                    entry.title,
+                                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor),
+                                                  ),
+                                                ],
+                                              ),
+                                              PopupMenuButton<String>(
+                                                onSelected: (value) async {
+                                                  if (value == 'edit') {
+                                                    await Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(builder: (_) => AddEntryPage(entry: entry)),
+                                                    );
+                                                    loadEntries();
+                                                  } else if (value == 'delete') {
+                                                    await dbService.deleteEntry(entry.id!);
+                                                    loadEntries();
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      SnackBar(
+                                                        content: Text('Entry deleted'),
+                                                        action: SnackBarAction(
+                                                          label: 'Undo',
+                                                          textColor: Colors.green,
+                                                          onPressed: () => undoDelete(entry),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }
+                                                },
+                                                itemBuilder: (context) => [
+                                                  PopupMenuItem(value: 'edit', child: Text('Edit')),
+                                                  PopupMenuItem(value: 'delete', child: Text('Delete')),
+                                                ],
                                               ),
                                             ],
                                           ),
-                                          PopupMenuButton<String>(
-                                            onSelected: (value) async {
-                                              if (value == 'edit') {
-                                                await Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(builder: (_) => AddEntryPage(entry: entry)),
-                                                );
-                                                loadEntries();
-                                              } else if (value == 'delete') {
-                                                await dbService.deleteEntry(entry.id!);
-                                                loadEntries();
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  SnackBar(
-                                                    content: Text('Entry deleted'),
-                                                    action: SnackBarAction(
-                                                      label: 'Undo',
-                                                      textColor: Colors.yellow,
-                                                      onPressed: () => undoDelete(entry),
-                                                    ),
-                                                  ),
-                                                );
-                                              }
-                                            },
-                                            itemBuilder: (context) => [
-                                              PopupMenuItem(value: 'edit', child: Text('Edit')),
-                                              PopupMenuItem(value: 'delete', child: Text('Delete')),
-                                            ],
+                                          SizedBox(height: 6),
+                                          Text(
+                                            entry.content,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(color: textColor?.withOpacity(0.8)),
+                                          ),
+                                          SizedBox(height: 6),
+                                          Text(
+                                            formatDate(entry.date),
+                                            style: TextStyle(color: textColor?.withOpacity(0.6), fontSize: 13),
                                           ),
                                         ],
                                       ),
-                                      SizedBox(height: 6),
-                                      Text(
-                                        entry.content,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(color: textColor?.withOpacity(0.8)),
-                                      ),
-                                      SizedBox(height: 6),
-                                      Text(
-                                        formatDate(entry.date),
-                                        style: TextStyle(color: textColor?.withOpacity(0.6), fontSize: 13),
-                                      ),
-                                    ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          }).toList(),
-                        ],
-                      );
-                    }).toList(),
-                  ),
+                              );
+                            }).toList(),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+            ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: theme.colorScheme.primary,
-        child: Icon(Icons.add, color: Colors.white),
+        backgroundColor: Colors.blueAccent,
+        child: Icon(Icons.add, color: Colors.black),
         onPressed: () async {
           await Navigator.push(context, MaterialPageRoute(builder: (_) => AddEntryPage()));
           loadEntries();
