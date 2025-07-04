@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mydiary/models/diary_entry.dart';
@@ -244,6 +245,18 @@ class _HomePageState extends State<HomePage> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
+                                      if (entry.imagePath != null && entry.imagePath!.isNotEmpty)
+                                        Container(
+                                          margin: EdgeInsets.only(bottom: 8),
+                                          height: 150,
+                                          width: double.infinity,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(12),
+                                            image: DecorationImage(
+                                              image: FileImage(File(entry.imagePath!)),
+                                            ),
+                                          ),
+                                        ),
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
@@ -314,7 +327,7 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.cyanAccent,
-        child: Icon(Icons.add , color: Colors.black),
+        child: Icon(Icons.add, color: Colors.black),
         onPressed: () async {
           await Navigator.push(context, MaterialPageRoute(builder: (_) => AddEntryPage()));
           loadEntries();

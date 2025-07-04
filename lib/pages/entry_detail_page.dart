@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mydiary/models/diary_entry.dart';
@@ -61,11 +62,23 @@ class EntryDetailPage extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (entry.imagePath != null && entry.imagePath!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.file(
+                    File(entry.imagePath!),
+                    fit: BoxFit.contain, // Show full image, scale to width
+                    width: double.infinity,
+                  ),
+                ),
+              ),
             Text(entry.mood, style: TextStyle(fontSize: 32)),
             SizedBox(height: 12),
             Text(

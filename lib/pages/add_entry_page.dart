@@ -16,7 +16,7 @@ class AddEntryPage extends StatefulWidget {
 class _AddEntryPageState extends State<AddEntryPage> {
   final titleController = TextEditingController();
   final contentController = TextEditingController();
-  String selectedMood = '🙂';
+  String selectedMood = '😄'; // use emoji from moodOptions
   File? selectedImage;
   final picker = ImagePicker();
 
@@ -76,7 +76,10 @@ class _AddEntryPageState extends State<AddEntryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final selectedMoodMap = moodOptions.firstWhere((m) => m['emoji'] == selectedMood);
+    final selectedMoodMap = moodOptions.firstWhere(
+      (m) => m['emoji'] == selectedMood,
+      orElse: () => moodOptions[0],
+    );
 
     return Scaffold(
       appBar: AppBar(
