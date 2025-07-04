@@ -40,6 +40,8 @@ dependencies:
   flutter_local_notifications: ^17.1.2
   intl: ^0.18.1
   image_picker: ^1.1.0
+  
+  
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -50,12 +52,15 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
+  flutter_native_splash: ^2.3.5
+  flutter_launcher_icons: ^0.13.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -69,9 +74,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/diary_logo.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -98,3 +102,19 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/diary_logo.png
+  android: true
+  ios: true
+  web: false
+  fullscreen: true
+  android_gravity: center
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/diary_logo.png" 
+  adaptive_icon_background: "#87CEEB"
+  adaptive_icon_foreground: "assets/diary_logo.png" 

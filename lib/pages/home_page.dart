@@ -39,12 +39,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   void loadEntries() async {
-    final data = await dbService.getEntries();
+  final data = await dbService.getEntries();
+    if (!mounted) return;
     setState(() {
       entries = data;
       applyFilters();
     });
   }
+
 
   void applyFilters() {
     List<DiaryEntry> results = entries;
@@ -68,6 +70,7 @@ class _HomePageState extends State<HomePage> {
         results.sort((a, b) => b.date.compareTo(a.date));
     }
 
+    if (!mounted) return;
     setState(() {
       filteredEntries = results;
     });

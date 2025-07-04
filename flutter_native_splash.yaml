@@ -1,0 +1,21 @@
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/diary_logo.png
+  android: true
+  ios: true
+  web: false
+  android_gravity: center
+  fullscreen: true
+
+  android_12:
+    color: "#ffffff"
+    image: assets/diary_logo.png
+    icon_background_color: "#ffffff"
+
+  # Optional dark theme splash
+  color_dark: "#000000"
+  image_dark: assets/diary_logo.png
+  android_12:
+    color_dark: "#000000"
+    image_dark: assets/diary_logo.png
+    icon_background_color_dark: "#000000"
