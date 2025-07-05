@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:lottie/lottie.dart';
 import 'package:mydiary/models/diary_entry.dart';
 import 'package:mydiary/services/db_service.dart';
 
@@ -17,6 +18,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
   final contentController = TextEditingController();
   String selectedMood = '😄';
   File? selectedImage;
+  late DateTime entryDate;
   final picker = ImagePicker();
   final dbService = DBService();
 
@@ -36,9 +38,12 @@ class _AddEntryPageState extends State<AddEntryPage> {
       titleController.text = widget.entry!.title;
       contentController.text = widget.entry!.content;
       selectedMood = widget.entry!.mood;
+      entryDate = widget.entry!.date;
       if (widget.entry!.imagePath != null) {
         selectedImage = File(widget.entry!.imagePath!);
       }
+    } else {
+      entryDate = DateTime.now();
     }
   }
 
@@ -72,16 +77,14 @@ class _AddEntryPageState extends State<AddEntryPage> {
     }
   }
 
-  void saveEntry() async {
-    final now = DateTime.now();
-
+  Future<void> saveEntry() async {
     final DiaryEntry entry = DiaryEntry(
       id: widget.entry?.id,
-      title: titleController.text,
-      content: contentController.text,
-      date: now,
+      title: titleController.text.trim(),
+      content: contentController.text.trim(),
+      date: entryDate,
       mood: selectedMood,
-      imagePath: selectedImage?.path,
+      imagePath: selectedImage?.path ?? widget.entry?.imagePath,
     );
 
     if (widget.entry != null) {
@@ -90,7 +93,28 @@ class _AddEntryPageState extends State<AddEntryPage> {
       await dbService.insertEntry(entry);
     }
 
-    Navigator.pop(context);
+    // Show success animation dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        contentPadding: EdgeInsets.all(20),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Lottie.asset('assets/animations/checked.json', width: 120, repeat: false),
+            SizedBox(height: 10),
+            Text('Entry saved successfully!', style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+
+    // Delay for animation then close
+    await Future.delayed(Duration(seconds: 2));
+    Navigator.of(context).pop(); // close dialog
+    Navigator.of(context).pop(); // go back
   }
 
   @override
@@ -179,6 +203,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
                   selectedImage!,
                   height: 200,
                   width: double.infinity,
+                  fit: BoxFit.cover,
                 ),
               ),
             SizedBox(height: 30),
