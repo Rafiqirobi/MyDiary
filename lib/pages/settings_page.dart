@@ -49,8 +49,8 @@ class _SettingsPageState extends State<SettingsPage> {
             blurRadius: 4,
             offset: Offset(0, 2),
           )
-      ],
-    );
+      ], // Shadow for light mode
+    ); 
 
     return Scaffold(
       appBar: AppBar(
@@ -72,7 +72,7 @@ class _SettingsPageState extends State<SettingsPage> {
               onChanged: toggleTheme,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-          ),
+          ), // Dark mode toggle
           SizedBox(height: 20),
           Text("Reminders", style: sectionTitleStyle),
           SizedBox(height: 8),
@@ -106,7 +106,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 );
               },
             ),
-          ),
+          ), // About section
         ],
       ),
     );

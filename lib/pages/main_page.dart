@@ -53,8 +53,8 @@ class _MainPageState extends State<MainPage> {
             selectedIcon: Icon(Icons.settings),
             label: 'Settings',
           ),
-        ],
-      ),
+        ], // Navigation bar with three destinations
+      ), // Bottom navigation bar
     );
   }
 }

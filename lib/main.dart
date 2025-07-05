@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:mydiary/pages/login_page.dart';
 import 'package:mydiary/pages/main_page.dart';
 import 'package:mydiary/services/notification_service.dart';
@@ -51,21 +50,21 @@ class MyApp extends StatelessWidget {
                 return const Scaffold(
                   body: Center(child: CircularProgressIndicator()),
                 );
-              }
+              } // Check if the user is logged in
 
               if (snapshot.hasData) {
                 return MainPage(
                   isDarkMode: isDark,
                   onThemeChanged: _toggleTheme,
-                );
+                ); // Return MainPage if user is logged in
               } else {
                 return LoginPage(
                   isDarkMode: isDark,
                   onThemeChanged: _toggleTheme,
                 );
-              }
+              } // Return MainPage if user is logged in, otherwise return LoginPage
             },
-          ),
+          ), // Main entry point of the app
         );
       },
     );

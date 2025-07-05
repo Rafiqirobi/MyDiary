@@ -211,7 +211,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   _buildInfoTile("Age", age?.toString() ?? 'Unknown'),
                 ],
               ),
-            ),
+            ), // Profile card with avatar and user info
             SizedBox(height: 20),
             ElevatedButton.icon(
               icon: Icon(Icons.edit),
@@ -223,7 +223,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 foregroundColor: Colors.black,
               ),
               onPressed: showEditProfileDialog,
-            ),
+            ), // Edit profile button
             SizedBox(height: 16),
             ElevatedButton.icon(
               icon: Icon(Icons.logout),
@@ -245,7 +245,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ElevatedButton(onPressed: () => Navigator.pop(context, true), child: Text("Logout")),
                     ],
                   ),
-                );
+                ); // Show confirmation dialog
 
                 if (confirm == true) {
                   await FirebaseAuth.instance.signOut();
@@ -258,13 +258,13 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     (route) => false,
-                  );
+                  ); // Clear navigation stack
                 }
               },
-            ),
-          ],
+            ), // Logout button
+          ], 
         ),
-      ),
+      ), // Scaffold body
     );
   }
 
@@ -275,7 +275,7 @@ class _ProfilePageState extends State<ProfilePage> {
       subtitle: Text(value, style: TextStyle(fontSize: 16)),
       leading: Icon(_getIconForField(title)),
     );
-  }
+  } // Builds a tile for displaying user info
 
   IconData _getIconForField(String field) {
     switch (field) {
@@ -288,5 +288,5 @@ class _ProfilePageState extends State<ProfilePage> {
       default:
         return Icons.info_outline;
     }
-  }
+  } // Helper method to get icon based on field name
 }

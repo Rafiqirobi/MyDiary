@@ -90,8 +90,7 @@ class EntryDetailPage extends StatelessWidget {
                   File(entry.imagePath!),
                   width: double.infinity,
                   height: 220,
-                  
-                ),
+                ), // Display the image if it exists
               ),
             const SizedBox(height: 20),
             Card(
@@ -126,7 +125,7 @@ class EntryDetailPage extends StatelessWidget {
                       entry.content,
                       style: TextStyle(fontSize: 16, height: 1.5),
                     ),
-                  ],
+                  ], // Display the entry content
                 ),
               ),
             ),

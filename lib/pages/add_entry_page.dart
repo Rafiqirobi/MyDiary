@@ -139,7 +139,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
                 labelText: "Title",
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
-            ),
+            ), // TextField for title
             SizedBox(height: 16),
             TextField(
               controller: contentController,
@@ -148,7 +148,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
                 labelText: "Content",
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
-            ),
+            ), // TextField for content
             SizedBox(height: 16),
             Text("Mood", style: Theme.of(context).textTheme.titleMedium),
             SizedBox(height: 8),
@@ -157,7 +157,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey.shade300),
                 borderRadius: BorderRadius.circular(12),
-              ),
+              ), // Container for mood dropdown
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<Map<String, String>>(
                   isExpanded: true,
@@ -182,7 +182,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
                     }
                   },
                 ),
-              ),
+              ), // Dropdown for mood selection
             ),
             SizedBox(height: 20),
             ElevatedButton.icon(
@@ -194,7 +194,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
                 foregroundColor: Colors.black,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-            ),
+            ), // Button to pick image
             SizedBox(height: 12),
             if (selectedImage != null)
               ClipRRect(
@@ -205,7 +205,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
                   width: double.infinity,
                   fit: BoxFit.cover,
                 ),
-              ),
+              ), // Display selected image
             SizedBox(height: 30),
             SizedBox(
               width: double.infinity,
@@ -219,7 +219,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
-            ),
+            ), // Save button
           ],
         ),
       ),

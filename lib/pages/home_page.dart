@@ -228,6 +228,7 @@ class _HomePageState extends State<HomePage> {
                                     child: child,
                                   );
                                 },
+                                // Wrap each entry in a Dismissible widget
                                 child: Dismissible(
                                   key: Key(entry.id.toString()),
                                   background: Container(
@@ -255,7 +256,7 @@ class _HomePageState extends State<HomePage> {
                                     onTap: () async {
                                       await Navigator.push(
                                         context,
-                                        MaterialPageRoute(
+                                        MaterialPageRoute(// Navigate to EntryDetailPage
                                           builder: (_) => EntryDetailPage(
                                             entry: entry,
                                             onUpdated: loadEntries,
@@ -263,6 +264,7 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                       );
                                     },
+                                    //Each Entry Container
                                     child: Container(
                                       margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                       padding: EdgeInsets.all(12),
@@ -289,7 +291,7 @@ class _HomePageState extends State<HomePage> {
                                                 height: 200,
                                                 width: double.infinity,
                                               ),
-                                            ),
+                                            ), // Display the image if it exists
                                           SizedBox(height: 8),
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -303,7 +305,7 @@ class _HomePageState extends State<HomePage> {
                                                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor),
                                                   ),
                                                 ],
-                                              ),
+                                              ), // Mood and Title
                                               PopupMenuButton<String>(
                                                 onSelected: (value) async {
                                                   if (value == 'edit') {
@@ -331,7 +333,7 @@ class _HomePageState extends State<HomePage> {
                                                   PopupMenuItem(value: 'edit', child: Text('Edit')),
                                                   PopupMenuItem(value: 'delete', child: Text('Delete')),
                                                 ],
-                                              ),
+                                              ), // Popup menu for edit/delete options
                                             ],
                                           ),
                                           SizedBox(height: 6),
@@ -346,7 +348,7 @@ class _HomePageState extends State<HomePage> {
                                             formatDate(entry.date),
                                             style: TextStyle(color: textColor?.withOpacity(0.6), fontSize: 13),
                                           ),
-                                        ],
+                                        ], // Display the entry content
                                       ),
                                     ),
                                   ),
@@ -364,11 +366,11 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blueAccent,
         child: Icon(Icons.add, color: Colors.black),
-        onPressed: () async {
+        onPressed: () async { // Navigate to AddEntryPage
           await Navigator.push(context, MaterialPageRoute(builder: (_) => AddEntryPage()));
           loadEntries();
         },
-      ),
+      ), // Floating action button to add new entry
     );
   }
 }
