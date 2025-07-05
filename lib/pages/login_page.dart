@@ -69,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = widget.isDarkMode;
-    final primaryColor = isDark ? Colors.tealAccent : const Color(0xFF87CEEB);
+    final primaryColor = isDark ? Colors.blueAccent : Colors.blueAccent;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,

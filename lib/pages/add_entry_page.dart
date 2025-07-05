@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:mydiary/models/diary_entry.dart';
 import 'package:mydiary/services/db_service.dart';
 
